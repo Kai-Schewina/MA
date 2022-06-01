@@ -12,8 +12,8 @@ import pandas as pd
 
 
 class Discretizer:
-    def __init__(self, data_path, timestep=0.8, store_masks=True, impute_strategy='zero', start_time='zero',
-                 config_path=os.path.join(os.path.dirname(__file__), 'resources/discretizer_config.json'),
+    def __init__(self, data_path, timestep=1.0, store_masks=True, impute_strategy='zero', start_time='zero',
+                 config_path=os.path.join(os.path.dirname(__file__), '../resources/discretizer_config.json'),
                  ):
 
         with open(config_path) as f:

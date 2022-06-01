@@ -3,7 +3,6 @@ from __future__ import print_function
 
 import os
 import shutil
-import argparse
 import random
 
 
@@ -31,4 +30,4 @@ def main(subjects_root_path):
 
 
 if __name__ == '__main__':
-    main("C:/Users/Masterarbeit/Desktop/data/output/")
+    main("../data/output/")

@@ -7,14 +7,15 @@ import random
 from tqdm import tqdm
 
 
-def process_partition(root_path, output_dir, eps=1e-6, n_hours=48):
+def process_partition(root_path, output_path, partition, eps=1e-6, n_hours=48):
+    output_dir = os.path.join(output_path, partition)
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
     xy_pairs = []
-    patients = list(filter(str.isdigit, os.listdir(root_path)))
-    for patient in tqdm(patients):
-        patient_folder = os.path.join(root_path, patient)
+    patients = list(filter(str.isdigit, os.listdir(os.path.join(root_path, partition))))
+    for patient in tqdm(patients, desc='Iterating over patients in {}'.format(partition)):
+        patient_folder = os.path.join(root_path, partition, patient)
         patient_ts_files = list(filter(lambda x: x.find("timeseries") != -1, os.listdir(patient_folder)))
 
         for ts_filename in patient_ts_files:
@@ -57,6 +58,10 @@ def process_partition(root_path, output_dir, eps=1e-6, n_hours=48):
                 xy_pairs.append((output_ts_filename, mortality))
 
     print("Number of created samples:", len(xy_pairs))
+    if partition == "train":
+        random.shuffle(xy_pairs)
+    if partition == "test":
+        xy_pairs = sorted(xy_pairs)
 
     with open(os.path.join(output_dir, "listfile.csv"), "w") as listfile:
         listfile.write('stay,y_true\n')
@@ -68,7 +73,8 @@ def main(root_path, output_path):
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    process_partition(root_path, output_path)
+    process_partition(root_path, output_path, "test")
+    process_partition(root_path, output_path, "train")
 
 
 if __name__ == '__main__':
