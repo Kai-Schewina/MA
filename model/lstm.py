@@ -19,15 +19,7 @@ class Network(Model):
         self.rec_dropout = rec_dropout
         self.depth = depth
 
-        if task in ['decomp', 'ihm', 'ph']:
-            final_activation = 'sigmoid'
-        elif task in ['los']:
-            if num_classes == 1:
-                final_activation = 'relu'
-            else:
-                final_activation = 'softmax'
-        else:
-            raise ValueError("Wrong value for task")
+        final_activation = 'sigmoid'
 
         # Input layers and masking
         X = Input(shape=(None, input_dim), name='X')
