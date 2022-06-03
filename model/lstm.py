@@ -4,14 +4,11 @@ from __future__ import print_function
 from keras.models import Model
 from keras.layers import Input, Dense, LSTM, Masking, Dropout, CuDNNLSTM
 from keras.layers.wrappers import Bidirectional, TimeDistributed
-from mimic3models.keras_utils import LastTimestep
-from mimic3models.keras_utils import ExtendMask
 
 
 class Network(Model):
-
     def __init__(self, dim, batch_norm, dropout, rec_dropout, task,
-                 target_repl=False, deep_supervision=False, num_classes=1,
+                 num_classes=1,
                  depth=1, input_dim=76, **kwargs):
 
         print("==> not used params in network class:", kwargs.keys())
@@ -37,14 +34,8 @@ class Network(Model):
         inputs = [X]
         mX = Masking()(X)
 
-        if deep_supervision:
-            M = Input(shape=(None,), name='M')
-            inputs.append(M)
-
         # Configurations
         is_bidirectional = True
-        if deep_supervision:
-            is_bidirectional = False
 
         # Main part of the network
         for i in range(depth - 1):
@@ -64,28 +55,16 @@ class Network(Model):
                 mX = lstm(mX)
 
         # Output module of the network
-        return_sequences = (target_repl or deep_supervision)
         L = LSTM(units=dim,
                  activation='tanh',
-                 return_sequences=return_sequences,
                  dropout=dropout,
                  recurrent_dropout=rec_dropout)(mX)
 
         if dropout > 0:
             L = Dropout(dropout)(L)
 
-        if target_repl:
-            y = TimeDistributed(Dense(num_classes, activation=final_activation),
-                                name='seq')(L)
-            y_last = LastTimestep(name='single')(y)
-            outputs = [y_last, y]
-        elif deep_supervision:
-            y = TimeDistributed(Dense(num_classes, activation=final_activation))(L)
-            y = ExtendMask()([y, M])  # this way we extend mask of y to M
-            outputs = [y]
-        else:
-            y = Dense(num_classes, activation=final_activation)(L)
-            outputs = [y]
+        y = Dense(num_classes, activation=final_activation)(L)
+        outputs = [y]
 
         super(Network, self).__init__(inputs=inputs, outputs=outputs)
 
