@@ -69,91 +69,9 @@ def sort_and_shuffle(data, batch_size):
     return data
 
 
-class DeepSupervisionDataLoader:
-    r"""
-    Data loader for decompensation and length of stay task.
-    Reads all the data for one patient at once.
-
-    Parameters
-    ----------
-    dataset_dir : str
-        Directory where timeseries files are stored.
-    listfile : str
-        Path to a listfile. If this parameter is left `None` then
-        `dataset_dir/listfile.csv` will be used.
-    """
-    def __init__(self, dataset_dir, listfile=None, small_part=False):
-
-        self._dataset_dir = dataset_dir
-        if listfile is None:
-            listfile_path = os.path.join(dataset_dir, "listfile.csv")
-        else:
-            listfile_path = listfile
-        with open(listfile_path, "r") as lfile:
-            self._data = lfile.readlines()[1:]  # skip the header
-
-        self._data = [line.split(',') for line in self._data]
-        self._data = [(x, float(t), y) for (x, t, y) in self._data]
-        self._data = sorted(self._data)
-
-        mas = {"X": [],
-               "ts": [],
-               "ys": [],
-               "name": []}
-        i = 0
-        while i < len(self._data):
-            j = i
-            cur_stay = self._data[i][0]
-            cur_ts = []
-            cur_labels = []
-            while j < len(self._data) and self._data[j][0] == cur_stay:
-                cur_ts.append(self._data[j][1])
-                cur_labels.append(self._data[j][2])
-                j += 1
-
-            cur_X, header = self._read_timeseries(cur_stay)
-            mas["X"].append(cur_X)
-            mas["ts"].append(cur_ts)
-            mas["ys"].append(cur_labels)
-            mas["name"].append(cur_stay)
-
-            i = j
-            if small_part and len(mas["name"]) == 256:
-                break
-
-        self._data = mas
-
-    def _read_timeseries(self, ts_filename):
-        ret = []
-        with open(os.path.join(self._dataset_dir, ts_filename), "r") as tsfile:
-            header = tsfile.readline().strip().split(',')
-            assert header[0] == "Hours"
-            for line in tsfile:
-                mas = line.strip().split(',')
-                ret.append(np.array(mas))
-        return (np.stack(ret), header)
-
-
 def create_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
-
-
-def pad_zeros(arr, min_length=None):
-    """
-    `arr` is an array of `np.array`s
-
-    The function appends zeros to every `np.array` in `arr`
-    to equalize their first axis lenghts.
-    """
-    dtype = arr[0].dtype
-    max_len = max([x.shape[0] for x in arr])
-    ret = [np.concatenate([x, np.zeros((max_len - x.shape[0],) + x.shape[1:], dtype=dtype)], axis=0)
-           for x in arr]
-    if (min_length is not None) and ret[0].shape[0] < min_length:
-        ret = [np.concatenate([x, np.zeros((min_length - x.shape[0],) + x.shape[1:], dtype=dtype)], axis=0)
-               for x in ret]
-    return np.array(ret)
 
 
 def load_data(reader, discretizer, normalizer, small_part=False, return_names=False):
