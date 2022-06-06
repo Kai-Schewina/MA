@@ -3,10 +3,10 @@ from __future__ import print_function
 
 import numpy as np
 from sklearn import metrics
-import keras
+from tensorflow.keras.callbacks import Callback
 
 
-class InHospitalMortalityMetrics(keras.callbacks.Callback):
+class InHospitalMortalityMetrics(Callback):
     def __init__(self, train_data, val_data, batch_size=32, early_stopping=True, verbose=2):
         super(InHospitalMortalityMetrics, self).__init__()
         self.train_data = train_data
