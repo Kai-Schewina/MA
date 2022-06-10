@@ -26,13 +26,18 @@ def add_features(subj):
     patient_ts_files = list(filter(lambda x: x.find("timeseries") != -1, os.listdir(subj)))
     for ts in patient_ts_files:
         path = os.path.join(subj, ts)
-        episode = pd.read_csv(os.path.join(subj, ts.replace("_timeseries", "")))
-        ts = pd.read_csv(path)
-        columns = ["Ethnicity", "Gender", "Age", "height", "weight"]
-        for col in columns:
-            ts[col] = episode[col]
-            ts[col] = ts[col].ffill()
-        ts.to_csv(path, index=False)
+        try:
+            episode = pd.read_csv(os.path.join(subj, ts.replace("_timeseries", "")))
+            ts = pd.read_csv(path)
+            columns = ["Ethnicity", "Gender", "Age", "height", "weight"]
+            for col in columns:
+                ts[col] = episode[col]
+                ts[col] = ts[col].ffill()
+            ts.to_csv(path, index=False)
+        except pd.errors.EmptyDataError:
+            print(subj)
+            print(ts)
+            continue
 
 
 def main():

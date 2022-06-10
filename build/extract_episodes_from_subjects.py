@@ -19,7 +19,7 @@ def extract_episodes(subjects_root_path, var_map, variables, subject_dir):
         subject_id = int(subject_dir)
         if not os.path.isdir(dn):
             raise Exception
-    except:
+    except Exception as e:
         print("Subject Directory " + str(subject_dir) + " does not exist.")
         return None
 
@@ -79,4 +79,4 @@ def main(subjects_root_path):
 
 
 if __name__ == "__main__":
-    main("../data/output/")
+    main("../data/output/train/")
