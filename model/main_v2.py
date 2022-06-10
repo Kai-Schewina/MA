@@ -80,7 +80,7 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
                                            depth)
     model.final_name = prefix + say_name + suffix
     model.compile(optimizer=optimizer_config,
-                  loss=weighted_bincrossentropy)
+                  loss=loss)
     model.summary()
 
     # Load model weights
@@ -141,5 +141,5 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
 
 if __name__ == "__main__":
     path = "../data/in-hospital-mortality_v3/"
-    main(mode="train", dropout=0.2, balance=False, depth=5, batch_size=256, dim=48, epochs=100, lr=0.01)
+    main(data=path, mode="train", dropout=0.3, depth=2, batch_size=8, dim=16, epochs=5000, lr=0.001)
 
