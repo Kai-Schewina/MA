@@ -5,7 +5,6 @@ import numpy as np
 import re
 from pandas import DataFrame, Series
 import pandas as pd
-from util import dataframe_from_csv
 import warnings
 warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
@@ -82,20 +81,6 @@ def map_itemids_to_variables(events, var_map):
     return events.merge(var_map, left_on='itemid', right_index=True)
 
 
-# This is currently not used!
-def read_variable_ranges(fn, variable_column='LEVEL2'):
-    columns = [variable_column, 'OUTLIER LOW', 'VALID LOW', 'IMPUTE', 'VALID HIGH', 'OUTLIER HIGH']
-    to_rename = dict(zip(columns, [c.replace(' ', '_') for c in columns]))
-    to_rename[variable_column] = 'variable'
-    var_ranges = dataframe_from_csv(fn, index_col=None)
-    # var_ranges = var_ranges[variable_column].apply(lambda s: s.lower())
-    var_ranges = var_ranges[columns]
-    var_ranges.rename(to_rename, axis=1, inplace=True)
-    var_ranges = var_ranges.drop_duplicates(subset='variable', keep='first')
-    var_ranges.set_index('variable', inplace=True)
-    return var_ranges.loc[var_ranges.notnull().all(axis=1)]
-
-
 # SBP: some are strings of type SBP/DBP
 def clean_sbp(df):
     v = df.value.astype(str).copy()
@@ -115,14 +100,10 @@ def clean_dbp(df):
 def clean_crr(df):
     v = Series(np.zeros(df.shape[0]), index=df.index)
     v[:] = np.nan
-
-    # when df.VALUE is empty, dtype can be float and comparision with string
-    # raises an exception, to fix this we change dtype to str
     df_value_str = df.value.astype(str)
-
-    v.loc[(df_value_str == 'Normal <3 secs')] = 0
-    v.loc[(df_value_str == 'Abnormal >3 secs')] = 1
-    return v
+    v.loc[(df_value_str == 'Normal <3 secs')] = 1.0
+    v.loc[(df_value_str == 'Abnormal >3 secs')] = 2.0
+    return v.astype(float)
 
 
 # FIO2: many 0s, some 0<x<0.2 or 1<x<20
@@ -215,8 +196,6 @@ def clean_hr_bpm_pao2_paco2_rr(df):
 
 def clean_pulse(df):
     v = df.value.astype(str).copy()
-    if "Not Applicable" in v.values:
-        bla = "bla"
     v[(v == 'Absent')] = 0.0
     v[(v == 'Strong/Palpable') | (v == 'Difficult to Palpate') | (v == 'Difficult Palpate')] = 1.0
     v[(v == 'Easily Palpable') | (v == 'Weak Palpable') | (v == 'Weak Palpate') | (v == 'Weak PalPable')] = 2.0
