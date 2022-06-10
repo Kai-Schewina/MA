@@ -53,10 +53,10 @@ tuner = kt.Hyperband(
     hyperband_iterations=5,
     directory="./try_10/")
 
-with open("./data/in-hospital-mortality_v3/train_raw.pkl", "rb") as f:
+with open("../data/in-hospital-mortality_v3/train_raw.pkl", "rb") as f:
     train_raw = pickle.load(f)
 
-with open("./data/in-hospital-mortality_v3/val_raw.pkl", "rb") as f:
+with open("../data/in-hospital-mortality_v3/val_raw.pkl", "rb") as f:
     val_raw = pickle.load(f)
 
 tuner.search(train_raw[0], train_raw[1], validation_data=(val_raw[0], val_raw[1]), callbacks=[EarlyStopping('val_loss', patience=3)])
