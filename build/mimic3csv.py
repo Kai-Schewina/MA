@@ -34,8 +34,20 @@ def read_icustays_table(mimic4_path):
     return stays
 
 
+def get_row_count(mimic4_path):
+    with open(os.path.join(mimic4_path, "icu/chartevents.csv")) as f:
+        chartevents_count = sum(1 for line in f)
+    with open(os.path.join(mimic4_path, "hosp/labevents.csv")) as f:
+        labevents_count = sum(1 for line in f)
+    with open(os.path.join(mimic4_path, "icu/outputevents.csv")) as f:
+        outputevents_count = sum(1 for line in f)
+    return chartevents_count, labevents_count, outputevents_count
+
+
 def read_events_table_by_row(mimic4_path, table):
-    nb_rows = {'chartevents': 330712484, 'labevents': 27854056, 'outputevents': 4349219}
+    ce_count, l_count, o_count = get_row_count(mimic4_path)
+    nb_rows = {'chartevents': ce_count, 'labevents': l_count, 'outputevents': o_count}
+
     if table == "chartevents" or table == "outputevents":
         reader = csv.DictReader(open(os.path.join(mimic4_path, 'icu/' + table + '.csv'), 'r'))
     else:
@@ -139,16 +151,7 @@ def read_events_table_and_break_up_by_subject(mimic4_path, table, output_path,
         w.writerows(data_stats.curr_obs)
         data_stats.curr_obs = []
 
-    def get_row_count():
-        with open(os.path.join(mimic4_path, "icu/chartevents.csv")) as f:
-            chartevents_count = sum(1 for line in f)
-        with open(os.path.join(mimic4_path, "hosp/labevents.csv")) as f:
-            labevents_count = sum(1 for line in f)
-        with open(os.path.join(mimic4_path, "icu/outputevents.csv")) as f:
-            outputevents_count = sum(1 for line in f)
-        return chartevents_count, labevents_count, outputevents_count
-
-    ce_count, l_count, o_count = get_row_count()
+    ce_count, l_count, o_count = get_row_count(mimic4_path)
     nb_rows_dict = {'chartevents': ce_count, 'labevents': l_count, 'outputevents': o_count}
     nb_rows = nb_rows_dict[table]
 

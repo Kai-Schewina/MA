@@ -12,7 +12,6 @@ def read_stays(subject_path):
     stays = dataframe_from_csv(os.path.join(subject_path, 'stays.csv'), index_col=None)
     stays.intime = pd.to_datetime(stays.intime)
     stays.outtime = pd.to_datetime(stays.outtime)
-    # stays.DOB = pd.to_datetime(stays.DOB)
     stays.dod = pd.to_datetime(stays.dod)
     stays.deathtime = pd.to_datetime(stays.deathtime)
     stays.sort_values(by=['intime', 'outtime'], inplace=True)
@@ -31,7 +30,7 @@ def read_events(subject_path, remove_null=True):
     events.hadm_id = events.hadm_id.fillna(value=-1).astype(int)
     events.stay_id = events.stay_id.fillna(value=-1).astype(int)
     events.valueuom = events.valueuom.fillna('').astype(str)
-    # events.sort_values(by=['CHARTTIME', 'ITEMID', 'ICUSTAY_ID'], inplace=True)
+    events.sort_values(by=['charttime', 'itemid', 'stay_id'], inplace=True)
     return events
 
 

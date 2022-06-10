@@ -68,6 +68,9 @@ class Discretizer:
                     self._normal_values[index] = round(row[0], 5)
 
         for col in combined.columns:
+            if col == "Ethnicity" or "Gender":
+                self._normal_values[col] = "0.0"
+                continue
             if col != "hours":
                 if self._is_categorical_channel[col]:
                     self._normal_values[col] = combined[col].mode().iloc[0]
