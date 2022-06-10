@@ -28,7 +28,7 @@ def build_model(depth, units, dropout, input_dim):
     return model
 
 
-def main(data='../data/in-hospital-mortality_v3/', output_dir='.', dim=256, depth=1, epochs=20,
+def main(data, output_dir='.', dim=256, depth=1, epochs=20,
          load_state="", mode="train", batch_size=64, l2=0, l1=0, save_every=1, prefix="", dropout=0.0, rec_dropout=0.0,
          batch_norm=False, timestep=1.0, small_part=False, optimizer="adam",
          lr=0.001, beta_1=0.9, verbose=2, balance=False, balance_loss=False):
@@ -140,5 +140,6 @@ def main(data='../data/in-hospital-mortality_v3/', output_dir='.', dim=256, dept
 
 
 if __name__ == "__main__":
+    path = "../data/in-hospital-mortality_v3/"
     main(mode="train", dropout=0.2, balance=False, depth=5, batch_size=256, dim=48, epochs=100, lr=0.01)
 

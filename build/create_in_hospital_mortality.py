@@ -79,4 +79,4 @@ def main(root_path, output_path):
 
 if __name__ == '__main__':
     main("../data/output/",
-         "../data/in-hospital-mortality_v3/")
+         "../data/in-hospital-mortality_v4/")

@@ -36,4 +36,4 @@ def main(dataset_dir):
 
 
 if __name__ == '__main__':
-    main("../data/in-hospital-mortality_v3/")
+    main("../data/in-hospital-mortality_v4/")
