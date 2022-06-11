@@ -7,12 +7,11 @@ from tensorflow.keras.callbacks import Callback
 
 
 class InHospitalMortalityMetrics(Callback):
-    def __init__(self, train_data, val_data, batch_size=32, early_stopping=True, verbose=2):
+    def __init__(self, train_data, val_data, batch_size=32, verbose=2):
         super(InHospitalMortalityMetrics, self).__init__()
         self.train_data = train_data
         self.val_data = val_data
         self.batch_size = batch_size
-        self.early_stopping = early_stopping
         self.verbose = verbose
         self.train_history = []
         self.val_history = []
@@ -41,12 +40,6 @@ class InHospitalMortalityMetrics(Callback):
         self.calc_metrics(self.train_data, self.train_history, 'train', logs)
         print("\n==>predicting on validation")
         self.calc_metrics(self.val_data, self.val_history, 'val', logs)
-
-        if self.early_stopping:
-            max_auc = np.max([x["auroc"] for x in self.val_history])
-            cur_auc = self.val_history[-1]["auroc"]
-            if max_auc > 0.85 and cur_auc < 0.83:
-                self.model.stop_training = True
 
 
 def print_metrics_binary(y_true, predictions, verbose=1):
