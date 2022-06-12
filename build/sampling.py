@@ -8,7 +8,13 @@ random.seed(42)
 
 
 def undersampling(data):
-    train_file = pd.read_csv(data)
+    try:
+        file_path = os.path.join(data, "train_listfile.csv")
+    except FileNotFoundError:
+        print("train_listfile.csv not in directory.")
+        return None
+
+    train_file = pd.read_csv(file_path)
 
     train_file["subject_id"] = train_file["stay"].str[:8]
 
@@ -26,6 +32,6 @@ def undersampling(data):
 
 
 if __name__ == "__main__":
-    data = "../data/in-hospital-mortality_v3/train_listfile.csv"
+    data = "../data/in-hospital-mortality_v3/"
     new_quota = undersampling(data)
     print("New balanced mortality quota: " + new_quota)

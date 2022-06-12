@@ -140,6 +140,6 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
 
 
 if __name__ == "__main__":
-    path = "../data/in-hospital-mortality_v3/"
-    main(data=path, mode="train", dropout=0.3, depth=2, batch_size=8, dim=16, epochs=5000, lr=0.001)
+    path = "../data/in-hospital-mortality_v4/"
+    main(data=path, mode="train", dropout=0.3, depth=2, batch_size=8, dim=16, epochs=10, lr=0.001)
 
