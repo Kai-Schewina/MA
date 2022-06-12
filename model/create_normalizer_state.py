@@ -8,9 +8,9 @@ import os
 
 def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero",
          store_masks=True, n_samples=-1, data_path=""):
+
     dataset_dir = os.path.join(data_path, 'train')
     reader = InHospitalMortalityReader(dataset_dir=dataset_dir, period_length=48.0)
-
 
     # create the discretizer
     discretizer = Discretizer(timestep=float(timestep),

@@ -68,7 +68,7 @@ class Discretizer:
                     self._normal_values[index] = round(row[0], 5)
 
         for col in combined.columns:
-            if col == "Ethnicity" or "Gender":
+            if col == "Ethnicity" or col == "Gender":
                 self._normal_values[col] = "0.0"
                 continue
             if col != "hours":
