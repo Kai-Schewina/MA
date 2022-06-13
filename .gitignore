@@ -1,2 +1,6 @@
 # Project exclude paths
 /data/
+*.jpg
+*.jpeg
+*.png
+*.gif
