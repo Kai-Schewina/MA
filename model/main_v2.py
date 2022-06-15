@@ -31,7 +31,7 @@ def build_model(depth, units, dropout, input_dim):
 def main(data, output_dir='.', dim=256, depth=1, epochs=20,
          load_state="", mode="train", batch_size=64, l2=0, l1=0, save_every=1, prefix="", dropout=0.0, rec_dropout=0.0,
          batch_norm=False, timestep=1.0, small_part=False, optimizer="adam",
-         lr=0.001, beta_1=0.9, verbose=2, balance=False, balance_loss=False):
+         lr=0.001, beta_1=0.9, verbose=2, balance=False, balance_loss=False, balanced_sample=False):
 
     def weighted_bincrossentropy(y_true, y_pred, weight_zero=0.125, weight_one=0.875):
         bin_crossentropy = keras.backend.binary_crossentropy(y_true, y_pred)
@@ -43,9 +43,14 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
 
     # Load Data
     if mode == "train":
-        with open(data + "/train_raw.pkl", "rb") as f:
-            train_raw = pickle.load(f)
-            input_dim = train_raw[0].shape[2]
+        if balanced_sample:
+            with open(data + "/train_raw_balanced.pkl", "rb") as f:
+                train_raw = pickle.load(f)
+                input_dim = train_raw[0].shape[2]
+        else:
+            with open(data + "/train_raw.pkl", "rb") as f:
+                train_raw = pickle.load(f)
+                input_dim = train_raw[0].shape[2]
         with open(data + "/val_raw.pkl", "rb") as f:
             val_raw = pickle.load(f)
     elif mode == "test":
@@ -62,8 +67,10 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
     optimizer_config = {'class_name': optimizer,
                         'config': {'lr': lr,
                                    'beta_1': beta_1}}
-    loss = 'binary_crossentropy'
-
+    if balance_loss:
+        loss = weighted_bincrossentropy
+    else:
+        loss = 'binary_crossentropy'
 
     # Build the model
     model = build_model(depth, dim, dropout, input_dim)
@@ -141,5 +148,5 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
 
 if __name__ == "__main__":
     path = "../data/in-hospital-mortality_v4/"
-    main(data=path, mode="train", dropout=0.3, depth=2, batch_size=8, dim=16, epochs=10, lr=0.001)
+    main(data=path, mode="train", dropout=0.3, depth=2, batch_size=8, dim=16, epochs=10, lr=0.001, balanced_sample=True)
 

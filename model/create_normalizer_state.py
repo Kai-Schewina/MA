@@ -7,10 +7,14 @@ import os
 
 
 def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero",
-         store_masks=True, n_samples=-1, data_path=""):
+         store_masks=True, n_samples=-1, data_path="", balanced=False):
 
     dataset_dir = os.path.join(data_path, 'train')
-    reader = InHospitalMortalityReader(dataset_dir=dataset_dir, period_length=48.0)
+    if balanced:
+        reader = InHospitalMortalityReader(dataset_dir=dataset_dir, period_length=48.0,
+                                           listfile=os.path.join(dataset_dir, 'train_listfile_balanced.csv'))
+    else:
+        reader = InHospitalMortalityReader(dataset_dir=dataset_dir, period_length=48.0)
 
     # create the discretizer
     discretizer = Discretizer(timestep=float(timestep),
@@ -38,13 +42,17 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
         normalizer._feed_data(data)
     print('\n')
 
-    file_name = '{}_ts_{:.2f}_impute_{}_start_{}_masks_{}_n_{}.normalizer'.format(
-        task, timestep, impute_strategy, start_time, store_masks, n_samples)
+    if balanced:
+        file_name = '{}_ts_{:.2f}_impute_{}_start_{}_masks_{}_n_{}_balanced.normalizer'.format(
+            task, timestep, impute_strategy, start_time, store_masks, n_samples)
+    else:
+        file_name = '{}_ts_{:.2f}_impute_{}_start_{}_masks_{}_n_{}.normalizer'.format(
+            task, timestep, impute_strategy, start_time, store_masks, n_samples)
     file_name = data_path + file_name
     print('Saving the state in {} ...'.format(file_name))
     normalizer._save_params(file_name)
 
 
 if __name__ == '__main__':
-    main(data_path="../data/in-hospital-mortality_v4/")
+    main(data_path="../data/in-hospital-mortality_v4/", balanced=True)
 
