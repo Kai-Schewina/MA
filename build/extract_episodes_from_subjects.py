@@ -79,4 +79,4 @@ def main(subjects_root_path):
 
 
 if __name__ == "__main__":
-    main("../data/output/train/")
+    main("../data/output/")

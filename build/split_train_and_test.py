@@ -10,12 +10,12 @@ def move_to_partition(subjects_root_path, patients, partition):
     if not os.path.exists(os.path.join(subjects_root_path, partition)):
         os.mkdir(os.path.join(subjects_root_path, partition))
     for patient in patients:
-        src = os.path.join(subjects_root_path, patient)
-        dest = os.path.join(subjects_root_path, partition, patient)
+        src = os.path.join(subjects_root_path, str(patient))
+        dest = os.path.join(subjects_root_path, partition, str(patient))
         shutil.move(src, dest)
 
 
-def main(subjects_root_path):
+def split_train_test(subjects_root_path):
     subjects = os.listdir(subjects_root_path)
     random.shuffle(subjects)
     test_set = subjects[:int((len(subjects) + 1) * .20)]
@@ -30,4 +30,4 @@ def main(subjects_root_path):
 
 
 if __name__ == '__main__':
-    main("../data/output/")
+    split_train_test("../data/output/")

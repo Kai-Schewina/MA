@@ -128,6 +128,7 @@ def clean_fio2(df):
     idx = df.valueuom.fillna('').apply(lambda s: 'torr' not in s.lower()) & (is_str | (~is_str & (v > 1.0)))
 
     v.loc[idx] = v[idx] / 100.
+    v[v > 1] = v / 100
     return v
 
 
