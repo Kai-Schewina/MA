@@ -14,7 +14,7 @@ import pandas as pd
 class Discretizer:
     def __init__(self, data_path, timestep=1.0, store_masks=True, impute_strategy='zero', start_time='zero',
                  config_path=os.path.join(os.path.dirname(__file__), '../resources/discretizer_config.json'),
-                 ):
+                 remove_outliers=False):
 
         with open(config_path) as f:
             config = json.load(f)
@@ -38,6 +38,7 @@ class Discretizer:
         # for normal value calculation
         self._data_path = data_path
         self._train_path = os.path.join(self._data_path, "train")
+        self._remove_outliers = remove_outliers
         self.check_normal_values()
 
     def check_normal_values(self):
@@ -54,6 +55,8 @@ class Discretizer:
         train_path = os.path.join(self._train_path)
         timeseries = list(os.listdir(train_path))
         timeseries.remove("listfile.csv")
+        if "train_listfile_balanced.csv" in timeseries:
+            timeseries.remove("train_listfile_balanced.csv")
 
         dfs = []
         print("Calculating impute values.")
@@ -61,7 +64,9 @@ class Discretizer:
             dfs.append(pd.read_csv(os.path.join(train_path, ts)))
         combined = pd.concat(dfs)
         means = pd.DataFrame(combined.mean())
-
+        if self._remove_outliers:
+            for cols in combined:
+                combined.loc[(combined[cols] - combined[cols].mean()).abs() >= 3 * combined[cols].std(), cols] = np.nan
         for index, row in means.iterrows():
             if index != "hours":
                 if not self._is_categorical_channel[index]:

@@ -3,6 +3,7 @@ import os
 import random
 random.seed(42)
 
+# Supposed to be executed after train/test split, but before train/val split
 # This function takes an in-hospital-mortality path as an input and changes the train listfile
 # that is used to read in data to achieve majority class undersampling to the quota of the target-train set(ards-ihm)
 
@@ -32,7 +33,7 @@ def undersampling(data, ards_listfile):
         train_file.drop(train_file[train_file["subject_id"] == random_subject].index, inplace=True)
 
     train_file.drop("subject_id", axis=1, inplace=True)
-    train_file.to_csv(os.path.join(data, "train", "train_listfile_balanced_v2.csv"), index=False)
+    train_file.to_csv(os.path.join(data, "train", "train_listfile_balanced.csv"), index=False)
     return str(round(train_file["y_true"].mean(), 2))
 
 

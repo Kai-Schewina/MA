@@ -5,16 +5,20 @@ from preprocessing import Discretizer, Normalizer
 import pickle
 
 
-def main(data, timestep=1.0, normalizer_state="ihm_ts_1.00_impute_previous_start_zero_masks_True_n_20937.normalizer",
-         small_part=False, balanced=False):
+def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=False):
 
+    if normalizer_state == "":
+        files = os.listdir(data)
+        for e in files:
+            if ".normalizer" in e:
+                normalizer_state = e
     # Build readers, discretizers, normalizers
     if balanced:
-        train_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
-                                                 listfile=os.path.join(data, 'train_listfile_balanced.csv'))
-    else:
-        train_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
-                                                 listfile=os.path.join(data, 'train_listfile.csv'))
+        train_reader_balanced = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
+                                                 listfile=os.path.join(data, "train", 'train_listfile_balanced.csv'))
+
+    train_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
+                                             listfile=os.path.join(data, 'train_listfile.csv'))
 
     val_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
                                            listfile=os.path.join(data, 'val_listfile.csv'))
@@ -40,11 +44,11 @@ def main(data, timestep=1.0, normalizer_state="ihm_ts_1.00_impute_previous_start
     test = utils.load_data(test_reader, discretizer, normalizer, small_part, return_names=True)
 
     if balanced:
+        train_raw_balanced = utils.load_data(train_reader_balanced, discretizer, normalizer, small_part)
         with open(os.path.join(data, "train_raw_balanced.pkl"), "wb") as f:
-            pickle.dump(train_raw, f)
-    else:
-        with open(os.path.join(data, "train_raw.pkl"), "wb") as f:
-            pickle.dump(train_raw, f)
+            pickle.dump(train_raw_balanced, f)
+    with open(os.path.join(data, "train_raw.pkl"), "wb") as f:
+        pickle.dump(train_raw, f)
     with open(os.path.join(data, "val_raw.pkl"), "wb") as f:
         pickle.dump(val_raw, f)
     with open(os.path.join(data, "test.pkl"), "wb") as f:
@@ -52,4 +56,5 @@ def main(data, timestep=1.0, normalizer_state="ihm_ts_1.00_impute_previous_start
 
 
 if __name__ == "__main__":
-    main(data="../data/in-hospital-mortality_v4/", balanced=True)
+    # main(data="../data/in-hospital-mortality_v5/", balanced=True)
+    main(data="../data/ards_ihm/", balanced=False)
