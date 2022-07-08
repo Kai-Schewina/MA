@@ -4,6 +4,8 @@ from __future__ import print_function
 from build.readers import InHospitalMortalityReader
 from preprocessing import Discretizer, Normalizer
 import os
+import utils
+import pickle
 
 
 def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero",
@@ -12,7 +14,7 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
     dataset_dir = os.path.join(data_path, 'train')
     if balanced:
         reader = InHospitalMortalityReader(dataset_dir=dataset_dir, period_length=48.0,
-                                           listfile=os.path.join(dataset_dir, 'train_listfile_balanced.csv'))
+                                           listfile=os.path.join(data_path, 'train_listfile_balanced.csv'))
     else:
         reader = InHospitalMortalityReader(dataset_dir=dataset_dir, period_length=48.0)
 
@@ -26,10 +28,8 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
     discretizer_header = discretizer.transform(reader.read_example(0)["X"])[1].split(',')
     continuous_channels = [i for (i, x) in enumerate(discretizer_header) if x.find("->") == -1]
 
-    # create the normalizer
     normalizer = Normalizer(fields=continuous_channels)
 
-    # read all examples and store the state of the normalizer
     n_samples = n_samples
     if n_samples == -1:
         n_samples = reader.get_number_of_examples()
@@ -39,7 +39,7 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
             print('Processed {} / {} samples'.format(i, n_samples), end='\r')
         ret = reader.read_example(i)
         data, new_header = discretizer.transform(ret['X'], end=ret['t'])
-        normalizer._feed_data(data)
+        normalizer.feed_data(data)
     print('\n')
 
     if balanced:
@@ -50,9 +50,9 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
             task, timestep, impute_strategy, start_time, store_masks, n_samples)
     file_name = data_path + file_name
     print('Saving the state in {} ...'.format(file_name))
-    normalizer._save_params(file_name)
+    normalizer.save_params(file_name)
 
 
 if __name__ == '__main__':
-    main(data_path="../data/in-hospital-mortality_v5/", balanced=True)
+    main(data_path="../data/in-hospital-mortality_v5/", balanced=False)
 

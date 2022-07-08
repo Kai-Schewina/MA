@@ -3,25 +3,22 @@ import os
 from build.readers import InHospitalMortalityReader
 from preprocessing import Discretizer, Normalizer
 import pickle
+import shutil
 
 
-def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=False, remove_outliers=False):
+def main(data, full_data_path, timestep=1.0, normalizer_state="", small_part=False):
 
-    if normalizer_state == "":
-        files = os.listdir(data)
-        for e in files:
-            if ".normalizer" in e:
-                normalizer_state = e
+    # Copy files
+    files = os.listdir(full_data_path)
+    for e in files:
+        if ".normalizer" in e or ".json" in e:
+            shutil.copy(os.path.join(full_data_path, e), os.path.join(data, e))
+        if ".normalizer" in e and "balanced" not in e and normalizer_state == "":
+            normalizer_state = e
+
     # Build readers, discretizers, normalizers
-    if balanced:
-        train_reader_balanced = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
-                                                 listfile=os.path.join(data, 'train_listfile_balanced.csv'))
-
     train_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
                                              listfile=os.path.join(data, 'train_listfile.csv'))
-
-    val_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
-                                           listfile=os.path.join(data, 'val_listfile.csv'))
 
     test_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'test'),
                                             listfile=os.path.join(data, 'test_listfile.csv'),
@@ -30,8 +27,7 @@ def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=Fal
     discretizer = Discretizer(data_path=data, timestep=float(timestep),
                               store_masks=True,
                               impute_strategy='previous',
-                              start_time='zero',
-                              remove_outliers=remove_outliers)
+                              start_time='zero')
 
     discretizer_header = discretizer.transform(train_reader.read_example(0)["X"])[1].split(',')
     cont_channels = [i for (i, x) in enumerate(discretizer_header) if x.find("->") == -1]
@@ -41,21 +37,13 @@ def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=Fal
     normalizer.load_params(normalizer_path)
 
     train_raw = utils.load_data(train_reader, discretizer, normalizer, small_part)
-    val_raw = utils.load_data(val_reader, discretizer, normalizer, small_part)
     test = utils.load_data(test_reader, discretizer, normalizer, small_part, return_names=True)
 
-    if balanced:
-        train_raw_balanced = utils.load_data(train_reader_balanced, discretizer, normalizer, small_part)
-        with open(os.path.join(data, "train_raw_balanced.pkl"), "wb") as f:
-            pickle.dump(train_raw_balanced, f)
     with open(os.path.join(data, "train_raw.pkl"), "wb") as f:
         pickle.dump(train_raw, f)
-    with open(os.path.join(data, "val_raw.pkl"), "wb") as f:
-        pickle.dump(val_raw, f)
     with open(os.path.join(data, "test.pkl"), "wb") as f:
         pickle.dump(test, f)
 
 
 if __name__ == "__main__":
-    # main(data="../data/in-hospital-mortality_v5/", balanced=True, remove_outliers=True)
-    main(data="../data/ards_ihm/", balanced=False)
+    main(data="../data/ards_ihm/", full_data_path="../data/in-hospital-mortality_v5/")

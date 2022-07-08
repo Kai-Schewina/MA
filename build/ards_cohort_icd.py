@@ -43,7 +43,7 @@ def count_icd(subj_root_path):
 
 def create_cohort_icd(subj_root_path, out_path, cohort):
     subject_list = get_subjects(subj_root_path)
-    created_subjects = []
+
     if not os.path.exists(out_path):
         os.mkdir(out_path)
 
@@ -72,6 +72,7 @@ def create_all_stays(in_path, out_path, cohort_hadm):
 def train_test_split(out_path):
     all_stays = pd.read_csv(os.path.join(out_path, "all_stays.csv"))
     subjects = all_stays["subject_id"].unique()
+    random.seed(42)
     random.shuffle(subjects)
     test_set = subjects[:int((len(subjects) + 1) * .80)]
     train_patients = [x for x in subjects if x not in test_set]

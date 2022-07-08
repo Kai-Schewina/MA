@@ -30,11 +30,6 @@ class Discretizer:
         self._start_time = start_time
         self._impute_strategy = impute_strategy
 
-        # for statistics
-        self._done_count = 0
-        self._empty_bins_sum = 0
-        self._unused_data_sum = 0
-
         # for normal value calculation
         self._data_path = data_path
         self._train_path = os.path.join(self._data_path, "train")
@@ -42,7 +37,10 @@ class Discretizer:
         self.check_normal_values()
 
     def check_normal_values(self):
-        file = os.path.join(self._data_path, "normal_values.json")
+        if self._remove_outliers:
+            file = os.path.join(self._data_path, "normal_values_nooutliers.json")
+        else:
+            file = os.path.join(self._data_path, "normal_values.json")
         if os.path.exists(file):
             with open(file) as f:
                 normal_values = json.load(f)
@@ -63,14 +61,21 @@ class Discretizer:
         for ts in tqdm(timeseries):
             dfs.append(pd.read_csv(os.path.join(train_path, ts)))
         combined = pd.concat(dfs)
-        means = pd.DataFrame(combined.mean())
         if self._remove_outliers:
             for cols in combined:
+                self._normal_values[cols] = [None,
+                                             combined[cols].mean() - (3 * combined[cols].std()),
+                                             combined[cols].mean() + (3 * combined[cols].std())]
                 combined.loc[(combined[cols] - combined[cols].mean()).abs() >= 3 * combined[cols].std(), cols] = np.nan
+
+        means = pd.DataFrame(combined.mean())
         for index, row in means.iterrows():
             if index != "hours":
                 if not self._is_categorical_channel[index]:
-                    self._normal_values[index] = round(row[0], 5)
+                    if self._remove_outliers:
+                        self._normal_values[index][0] = round(row[0], 5)
+                    else:
+                        self._normal_values[index] = round(row[0], 5)
 
         for col in combined.columns:
             if col == "Ethnicity" or col == "Gender":
@@ -79,9 +84,12 @@ class Discretizer:
             if col != "hours":
                 if self._is_categorical_channel[col]:
                     self._normal_values[col] = combined[col].mode().iloc[0]
-        with open(os.path.join(self._data_path, "normal_values.json"), "w", encoding="utf-8") as f:
-            json.dump(self._normal_values, f, ensure_ascii=False, indent=4)
-
+        if self._remove_outliers:
+            with open(os.path.join(self._data_path, "normal_values_nooutliers.json"), "w", encoding="utf-8") as f:
+                json.dump(self._normal_values, f, ensure_ascii=False, indent=4)
+        else:
+            with open(os.path.join(self._data_path, "normal_values.json"), "w", encoding="utf-8") as f:
+                json.dump(self._normal_values, f, ensure_ascii=False, indent=4)
         print("Finished calculating impute values.")
 
     def transform(self, X, header=None, end=None):
@@ -124,8 +132,6 @@ class Discretizer:
         data = np.zeros(shape=(N_bins, cur_len), dtype=float)
         mask = np.zeros(shape=(N_bins, N_channels), dtype=int)
         original_value = [["" for j in range(N_channels)] for i in range(N_bins)]
-        total_data = 0
-        unused_data = 0
 
         def write(data, bin_id, channel, value, begin_pos):
             channel_id = self._channel_to_id[channel]
@@ -145,6 +151,9 @@ class Discretizer:
             else:
                 try:
                     data[bin_id, begin_pos[channel_id]] = float(value)
+                    if self._remove_outliers:
+                        if float(value) > self._normal_values[channel][2] or float(value) < self._normal_values[channel][1]:
+                            data[bin_id, begin_pos[channel_id]] = np.nan
                 except ValueError:
                     data[bin_id, begin_pos[channel_id]] = np.nan
                     print("0 was inserted instead of string")
@@ -162,9 +171,6 @@ class Discretizer:
                 channel = header[j]
                 channel_id = self._channel_to_id[channel]
 
-                total_data += 1
-                if mask[bin_id][channel_id] == 1:
-                    unused_data += 1
                 mask[bin_id][channel_id] = 1
 
                 write(data, bin_id, channel, row[j], begin_pos)
@@ -187,7 +193,10 @@ class Discretizer:
                         imputed_value = self._normal_values[channel]
                     if self._impute_strategy == 'previous':
                         if len(prev_values[channel_id]) == 0:
-                            imputed_value = self._normal_values[channel]
+                            if self._remove_outliers and not self._is_categorical_channel[channel]:
+                                imputed_value = self._normal_values[channel][0]
+                            else:
+                                imputed_value = self._normal_values[channel]
                         else:
                             imputed_value = prev_values[channel_id][-1]
                     write(data, bin_id, channel, imputed_value, begin_pos)
@@ -205,11 +214,6 @@ class Discretizer:
                     else:
                         imputed_value = prev_values[channel_id][-1]
                     write(data, bin_id, channel, imputed_value, begin_pos)
-
-        empty_bins = np.sum([1 - min(1, np.sum(mask[i, :])) for i in range(N_bins)])
-        self._done_count += 1
-        self._empty_bins_sum += empty_bins / (N_bins + eps)
-        self._unused_data_sum += unused_data / (total_data + eps)
 
         if self._store_masks:
             data = np.hstack([data, mask.astype(np.float32)])
@@ -233,12 +237,6 @@ class Discretizer:
 
         return (data, new_header)
 
-    def print_statistics(self):
-        print("statistics of discretizer:")
-        print("\tconverted {} examples".format(self._done_count))
-        print("\taverage unused data = {:.2f} percent".format(100.0 * self._unused_data_sum / self._done_count))
-        print("\taverage empty  bins = {:.2f} percent".format(100.0 * self._empty_bins_sum / self._done_count))
-
 
 class Normalizer:
     def __init__(self, fields=None):
@@ -252,7 +250,7 @@ class Normalizer:
         self._sum_sq_x = None
         self._count = 0
 
-    def _feed_data(self, x):
+    def feed_data(self, x):
         x = np.array(x)
         self._count += x.shape[0]
         if self._sum_x is None:
@@ -262,7 +260,7 @@ class Normalizer:
             self._sum_x += np.sum(x, axis=0)
             self._sum_sq_x += np.sum(x**2, axis=0)
 
-    def _save_params(self, save_file_path):
+    def save_params(self, save_file_path):
         eps = 1e-7
         with open(save_file_path, "wb") as save_file:
             N = self._count
