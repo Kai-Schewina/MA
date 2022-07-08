@@ -9,7 +9,6 @@ import pickle
 import numpy as np
 import utils
 from tensorflow.keras import layers
-from sklearn.utils.class_weight import compute_class_weight
 
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 from tensorflow import keras

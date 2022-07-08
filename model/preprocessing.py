@@ -135,6 +135,7 @@ class Discretizer:
 
         def write(data, bin_id, channel, value, begin_pos):
             channel_id = self._channel_to_id[channel]
+            value = float(value)
             if self._is_categorical_channel[channel]:
                 try:
                     category_id = self._possible_values[channel].index(str(value))
@@ -153,7 +154,7 @@ class Discretizer:
                     data[bin_id, begin_pos[channel_id]] = float(value)
                     if self._remove_outliers:
                         if float(value) > self._normal_values[channel][2] or float(value) < self._normal_values[channel][1]:
-                            data[bin_id, begin_pos[channel_id]] = np.nan
+                            data[bin_id, begin_pos[channel_id]] = 0.0
                 except ValueError:
                     data[bin_id, begin_pos[channel_id]] = np.nan
                     print("0 was inserted instead of string")
@@ -252,6 +253,7 @@ class Normalizer:
 
     def feed_data(self, x):
         x = np.array(x)
+        x = np.reshape(x, (x.shape[0] * x.shape[1], x.shape[2]))
         self._count += x.shape[0]
         if self._sum_x is None:
             self._sum_x = np.sum(x, axis=0)

@@ -92,7 +92,7 @@
     "platelets": [],
     "positive end-expiratory pressure": [],
     "prothrombin time": [],
-    "pulse": ["1.0", "2.0", "3.0", "0.0", "0", "1", "2", "3"],
+    "pulse": ["1.0", "2.0", "3.0", "0.0"],
     "red blood cell count": [],
     "red blood cell distribution width": [],
     "respiratory rate": [],
@@ -102,10 +102,10 @@
     "urine output": [],
     "weight": [],
     "white blood cell count": [],
-    "Ethnicity":  ["0.0", "1.0", "2.0", "3.0", "4.0", "0", "1", "2", "3", "4"],
-    "Gender":  ["0.0", "1.0", "2.0", "3.0", "0", "1", "2", "3"],
+    "Ethnicity":  ["0.0", "1.0", "2.0", "3.0", "4.0"],
+    "Gender":  ["0.0", "1.0", "2.0", "3.0"],
     "Age": [],
-    "vent": ["0.0", "1.0", "2.0", "0", "1", "2"]
+    "vent": ["0.0", "1.0", "2.0"]
   },
   "normal_values": {
     "albumin":  "",

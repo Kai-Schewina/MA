@@ -10,8 +10,13 @@ def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=Fal
     if normalizer_state == "":
         files = os.listdir(data)
         for e in files:
-            if ".normalizer" in e:
-                normalizer_state = e
+            if balanced:
+                if "balanced.normalizer" in e:
+                    normalizer_state = e
+            else:
+                if ".normalizer" in e and "balanced" not in e:
+                    normalizer_state = e
+
     # Build readers, discretizers, normalizers
     if balanced:
         train_reader_balanced = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
@@ -57,5 +62,4 @@ def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=Fal
 
 
 if __name__ == "__main__":
-    # main(data="../data/in-hospital-mortality_v5/", balanced=True, remove_outliers=True)
-    main(data="../data/ards_ihm/", balanced=False)
+    main(data="../data/in-hospital-mortality_v5/", balanced=True, remove_outliers=True)

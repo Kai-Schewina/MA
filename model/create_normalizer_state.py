@@ -9,7 +9,7 @@ import pickle
 
 
 def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero",
-         store_masks=True, n_samples=-1, data_path="", balanced=False):
+         store_masks=True, n_samples=-1, data_path="", balanced=False, remove_outliers=False):
 
     dataset_dir = os.path.join(data_path, 'train')
     if balanced:
@@ -23,7 +23,8 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
                               store_masks=store_masks,
                               impute_strategy=impute_strategy,
                               start_time=start_time,
-                              data_path=data_path)
+                              data_path=data_path,
+                              remove_outliers=remove_outliers)
 
     discretizer_header = discretizer.transform(reader.read_example(0)["X"])[1].split(',')
     continuous_channels = [i for (i, x) in enumerate(discretizer_header) if x.find("->") == -1]
@@ -34,13 +35,12 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
     if n_samples == -1:
         n_samples = reader.get_number_of_examples()
 
-    for i in range(n_samples):
-        if i % 1000 == 0:
-            print('Processed {} / {} samples'.format(i, n_samples), end='\r')
-        ret = reader.read_example(i)
-        data, new_header = discretizer.transform(ret['X'], end=ret['t'])
-        normalizer.feed_data(data)
-    print('\n')
+    ret = utils.read_chunk(reader, n_samples)
+    data = ret["X"]
+    ts = ret["t"]
+    data = [discretizer.transform(X, end=t)[0] for (X, t) in zip(data, ts)]
+
+    normalizer.feed_data(data)
 
     if balanced:
         file_name = '{}_ts_{:.2f}_impute_{}_start_{}_masks_{}_n_{}_balanced.normalizer'.format(
@@ -54,5 +54,5 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
 
 
 if __name__ == '__main__':
-    main(data_path="../data/in-hospital-mortality_v5/", balanced=False)
+    main(data_path="../data/in-hospital-mortality_v5/", balanced=True, remove_outliers=True)
 
