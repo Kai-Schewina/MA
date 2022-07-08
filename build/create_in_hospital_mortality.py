@@ -78,5 +78,9 @@ def main(root_path, output_path):
 
 
 if __name__ == '__main__':
-    main("../data/output/", "../data/in-hospital-mortality_v5/")
-    # main("../data/ards_icd/", "../data/ards_ihm/")
+    ards_path = "../data/ards_icd"
+    if os.path.exists(ards_path):
+        main(ards_path, "../data/ards_ihm/")
+    else:
+        main("../data/output/", "../data/in-hospital-mortality_v5/")
+
