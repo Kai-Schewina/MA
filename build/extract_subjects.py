@@ -7,7 +7,7 @@ from util import dataframe_from_csv
 # Runtime: Slightly more than an hour
 
 
-def main(mimic4_path, output_path, event_tables=['outputevents', 'chartevents', 'labevents'], verbose=True, test=False):
+def main(mimic4_path, output_path, event_tables=['outputevents', 'labevents', 'chartevents'], verbose=True, test=False):
 
     os.makedirs(output_path, exist_ok=True)
     
@@ -60,4 +60,4 @@ def main(mimic4_path, output_path, event_tables=['outputevents', 'chartevents', 
 
 
 if __name__ == "__main__":
-    main(mimic4_path="../data/mimic-iv-1.0", output_path="../data/output/", test=False)
+    main(mimic4_path="E:\mimic-iv-1.0", output_path="../data/output_v2/", test=False)

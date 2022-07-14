@@ -21,10 +21,17 @@ def get_subjects(path):
         subjects_2 = [os.path.join(path, "test", x) for x in subjects_2 if ".csv" not in x]
 
         subjects = subjects_1 + subjects_2
+
+        if os.path.exists(os.path.join(path, "val")):
+            subjects_2 = os.listdir(os.path.join(path, "val"))
+            subjects_2 = [os.path.join(path, "val", x) for x in subjects_2 if ".csv" not in x]
+            subjects = subjects + subjects_2
+
         del subjects_1
         del subjects_2
     else:
         subjects = os.listdir(path)
+        subjects = [os.path.join(path, x) for x in subjects if ".csv" not in x]
     return subjects
 
 

@@ -61,6 +61,8 @@ class Discretizer:
         for ts in tqdm(timeseries):
             dfs.append(pd.read_csv(os.path.join(train_path, ts)))
         combined = pd.concat(dfs)
+        if "troponin-t" in combined.columns:
+            combined = combined.drop("troponin-t", axis=1)
         if self._remove_outliers:
             for cols in combined:
                 self._normal_values[cols] = [None,
@@ -68,7 +70,8 @@ class Discretizer:
                                              combined[cols].mean() + (3 * combined[cols].std())]
                 combined.loc[(combined[cols] - combined[cols].mean()).abs() >= 3 * combined[cols].std(), cols] = np.nan
 
-        means = pd.DataFrame(combined.mean())
+        # means = pd.DataFrame(combined.mean())
+        means = pd.DataFrame(combined.median())
         for index, row in means.iterrows():
             if index != "hours":
                 if not self._is_categorical_channel[index]:
@@ -78,7 +81,7 @@ class Discretizer:
                         self._normal_values[index] = round(row[0], 5)
 
         for col in combined.columns:
-            if col == "Ethnicity" or col == "Gender":
+            if col == "Ethnicity" or col == "Gender" or col == "vent":
                 self._normal_values[col] = "0.0"
                 continue
             if col != "hours":
@@ -152,9 +155,9 @@ class Discretizer:
             else:
                 try:
                     data[bin_id, begin_pos[channel_id]] = float(value)
-                    if self._remove_outliers:
-                        if float(value) > self._normal_values[channel][2] or float(value) < self._normal_values[channel][1]:
-                            data[bin_id, begin_pos[channel_id]] = 0.0
+                    # if self._remove_outliers:
+                    #     if float(value) > self._normal_values[channel][2] or float(value) < self._normal_values[channel][1]:
+                    #         data[bin_id, begin_pos[channel_id]] = 0.0
                 except ValueError:
                     data[bin_id, begin_pos[channel_id]] = np.nan
                     print("0 was inserted instead of string")
@@ -250,11 +253,18 @@ class Normalizer:
         self._sum_x = None
         self._sum_sq_x = None
         self._count = 0
+        self._median = None
+        self._percentile_25 = None
+        self._percentile_75 = None
 
     def feed_data(self, x):
         x = np.array(x)
         x = np.reshape(x, (x.shape[0] * x.shape[1], x.shape[2]))
         self._count += x.shape[0]
+        self._median = np.median(x, axis=0)
+        self._percentile_25 = np.percentile(x, q=20, axis=0)
+        self._percentile_75 = np.percentile(x, q=80, axis=0)
+
         if self._sum_x is None:
             self._sum_x = np.sum(x, axis=0)
             self._sum_sq_x = np.sum(x**2, axis=0)
@@ -270,7 +280,10 @@ class Normalizer:
             self._stds = np.sqrt(1.0/(N - 1) * (self._sum_sq_x - 2.0 * self._sum_x * self._means + N * self._means**2))
             self._stds[self._stds < eps] = eps
             pickle.dump(obj={'means': self._means,
-                             'stds': self._stds},
+                             'stds': self._stds,
+                             'median': self._median,
+                             "percentile_75": self._percentile_75,
+                             "percentile_25": self._percentile_25},
                         file=save_file,
                         protocol=2)
 
@@ -282,6 +295,9 @@ class Normalizer:
                 dct = pickle.load(load_file, encoding='latin1')
             self._means = dct['means']
             self._stds = dct['stds']
+            self._median = dct['median']
+            self._percentile_25 = dct['percentile_25']
+            self._percentile_75 = dct['percentile_75']
 
     def transform(self, X):
         if self._fields is None:
@@ -290,5 +306,6 @@ class Normalizer:
             fields = self._fields
         ret = 1.0 * X
         for col in fields:
-            ret[:, col] = (X[:, col] - self._means[col]) / self._stds[col]
+            # ret[:, col] = (X[:, col] - self._means[col]) / self._stds[col]
+            ret[:, col] = (X[:, col] - self._median[col]) / (self._percentile_75[col] - self._percentile_25[col])
         return ret

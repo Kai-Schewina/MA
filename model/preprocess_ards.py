@@ -6,7 +6,7 @@ import pickle
 import shutil
 
 
-def main(data, full_data_path, timestep=1.0, normalizer_state="", small_part=False):
+def main(data, full_data_path, timestep=1.0, normalizer_state="", small_part=False, remove_outliers=False):
 
     # Copy files
     files = os.listdir(full_data_path)
@@ -27,7 +27,8 @@ def main(data, full_data_path, timestep=1.0, normalizer_state="", small_part=Fal
     discretizer = Discretizer(data_path=data, timestep=float(timestep),
                               store_masks=True,
                               impute_strategy='previous',
-                              start_time='zero')
+                              start_time='zero',
+                              remove_outliers=remove_outliers)
 
     discretizer_header = discretizer.transform(train_reader.read_example(0)["X"])[1].split(',')
     cont_channels = [i for (i, x) in enumerate(discretizer_header) if x.find("->") == -1]
@@ -36,7 +37,7 @@ def main(data, full_data_path, timestep=1.0, normalizer_state="", small_part=Fal
     normalizer_path = os.path.join(data, normalizer_state)
     normalizer.load_params(normalizer_path)
 
-    train_raw = utils.load_data(train_reader, discretizer, normalizer, small_part)
+    train_raw = utils.load_data(train_reader, discretizer, normalizer, small_part, return_names=True)
     test = utils.load_data(test_reader, discretizer, normalizer, small_part, return_names=True)
 
     with open(os.path.join(data, "train_raw.pkl"), "wb") as f:
@@ -46,4 +47,4 @@ def main(data, full_data_path, timestep=1.0, normalizer_state="", small_part=Fal
 
 
 if __name__ == "__main__":
-    main(data="../data/ards_ihm/", full_data_path="../data/in-hospital-mortality_v5/")
+    main(data="../data/ards_ihm/", full_data_path="../data/in-hospital-mortality_v6/", remove_outliers=True)

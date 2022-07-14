@@ -45,8 +45,8 @@ def get_row_count(mimic4_path):
 
 
 def read_events_table_by_row(mimic4_path, table):
-    ce_count, l_count, o_count = get_row_count(mimic4_path)
-    nb_rows = {'chartevents': ce_count, 'labevents': l_count, 'outputevents': o_count}
+    # ce_count, l_count, o_count = get_row_count(mimic4_path)
+    nb_rows = {'chartevents': 329499789, 'labevents': 122103668, 'outputevents': 4457382}
 
     if table == "chartevents" or table == "outputevents":
         reader = csv.DictReader(open(os.path.join(mimic4_path, 'icu/' + table + '.csv'), 'r'))
@@ -151,8 +151,8 @@ def read_events_table_and_break_up_by_subject(mimic4_path, table, output_path,
         w.writerows(data_stats.curr_obs)
         data_stats.curr_obs = []
 
-    ce_count, l_count, o_count = get_row_count(mimic4_path)
-    nb_rows_dict = {'chartevents': ce_count, 'labevents': l_count, 'outputevents': o_count}
+    # ce_count, l_count, o_count = get_row_count(mimic4_path)
+    nb_rows_dict = {'chartevents': 329499789, 'labevents': 122103668, 'outputevents': 4457382}
     nb_rows = nb_rows_dict[table]
 
     for row, row_no, _ in tqdm(read_events_table_by_row(mimic4_path, table), total=nb_rows,

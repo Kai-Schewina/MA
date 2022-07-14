@@ -16,6 +16,9 @@ def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=Fal
             else:
                 if ".normalizer" in e and "balanced" not in e:
                     normalizer_state = e
+        if normalizer_state == "":
+            print("Normalizer State Missing. Execute create_normalizer_state.py")
+            raise Exception
 
     # Build readers, discretizers, normalizers
     if balanced:
@@ -25,7 +28,7 @@ def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=Fal
     train_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
                                              listfile=os.path.join(data, 'train_listfile.csv'))
 
-    val_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'train'),
+    val_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'val'),
                                            listfile=os.path.join(data, 'val_listfile.csv'))
 
     test_reader = InHospitalMortalityReader(dataset_dir=os.path.join(data, 'test'),
@@ -45,12 +48,12 @@ def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=Fal
     normalizer_path = os.path.join(data, normalizer_state)
     normalizer.load_params(normalizer_path)
 
-    train_raw = utils.load_data(train_reader, discretizer, normalizer, small_part)
-    val_raw = utils.load_data(val_reader, discretizer, normalizer, small_part)
+    train_raw = utils.load_data(train_reader, discretizer, normalizer, small_part, return_names=True)
+    val_raw = utils.load_data(val_reader, discretizer, normalizer, small_part, return_names=True)
     test = utils.load_data(test_reader, discretizer, normalizer, small_part, return_names=True)
 
     if balanced:
-        train_raw_balanced = utils.load_data(train_reader_balanced, discretizer, normalizer, small_part)
+        train_raw_balanced = utils.load_data(train_reader_balanced, discretizer, normalizer, small_part, return_names=True)
         with open(os.path.join(data, "train_raw_balanced.pkl"), "wb") as f:
             pickle.dump(train_raw_balanced, f)
     with open(os.path.join(data, "train_raw.pkl"), "wb") as f:
@@ -62,4 +65,4 @@ def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=Fal
 
 
 if __name__ == "__main__":
-    main(data="../data/in-hospital-mortality_v5/", balanced=True, remove_outliers=True)
+    main(data="../data/in-hospital-mortality_v6_5/", balanced=True, remove_outliers=True)

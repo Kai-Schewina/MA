@@ -229,7 +229,7 @@ clean_fns = {
     'pH': clean_lab,
     'temperature': clean_temperature,
     'weight': clean_weight,
-    'height': clean_height,
+    # 'height': clean_height,
     # self-added
     'positive end-expiratory pressure': clean_peep,
     'heart rate': clean_hr_bpm_pao2_paco2_rr,

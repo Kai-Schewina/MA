@@ -58,7 +58,7 @@ def process_partition(root_path, output_path, partition, eps=1e-6, n_hours=48):
                 xy_pairs.append((output_ts_filename, mortality))
 
     print("Number of created samples:", len(xy_pairs))
-    if partition == "train":
+    if partition == "train" or partition == "val":
         random.shuffle(xy_pairs)
     if partition == "test":
         xy_pairs = sorted(xy_pairs)
@@ -75,12 +75,14 @@ def main(root_path, output_path):
 
     process_partition(root_path, output_path, "test")
     process_partition(root_path, output_path, "train")
+    if "ards" not in root_path:
+        process_partition(root_path, output_path, "val")
 
 
 if __name__ == '__main__':
-    ards_path = "../data/ards_icd"
+    # ards_path = "../data/ards_icd"
+    ards_path = ""
     if os.path.exists(ards_path):
         main(ards_path, "../data/ards_ihm/")
     else:
-        main("../data/output/", "../data/in-hospital-mortality_v5/")
-
+        main("../data/output/", "../data/in-hospital-mortality_v6_5/")

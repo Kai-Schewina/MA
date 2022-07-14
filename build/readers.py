@@ -87,8 +87,13 @@ class InHospitalMortalityReader(Reader):
         name = self._data[index][0]
         t = self._period_length
         y = self._data[index][1]
-        (X, header) = self._read_timeseries(name)
-
+        try:
+            (X, header) = self._read_timeseries(name)
+        except Exception as e:
+            print(e)
+            with open("bla.txt", "w") as f:
+                f.write(str(self._data))
+            raise e
         return {"X": X,
                 "t": t,
                 "y": y,
@@ -98,4 +103,4 @@ class InHospitalMortalityReader(Reader):
     def read_all(self):
         subjects = util.get_subjects(self._dataset_dir)
         combined = util.create_combined_df(subjects)
-
+        return combined
