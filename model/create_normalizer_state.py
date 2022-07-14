@@ -16,7 +16,8 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
         reader = InHospitalMortalityReader(dataset_dir=dataset_dir, period_length=48.0,
                                            listfile=os.path.join(data_path, 'train_listfile_balanced.csv'))
     else:
-        reader = InHospitalMortalityReader(dataset_dir=dataset_dir, period_length=48.0)
+        reader = InHospitalMortalityReader(dataset_dir=dataset_dir, period_length=48.0,
+                                           listfile=os.path.join(data_path, 'train_listfile.csv'))
 
     # create the discretizer
     discretizer = Discretizer(timestep=float(timestep),
@@ -54,5 +55,4 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
 
 
 if __name__ == '__main__':
-    main(data_path="../data/in-hospital-mortality_v5/", balanced=True, remove_outliers=True)
-
+    main(data_path="../data/in-hospital-mortality_v6_5/", balanced=False, remove_outliers=True)

@@ -16,6 +16,10 @@ def add_features(subj):
             for col in columns:
                 ts[col] = episode[col]
                 ts[col] = ts[col].ffill()
+            if "height" in ts:
+                ts = ts.drop("height", axis=1)
+            if "troponin-t" in ts:
+                ts = ts.drop("height", axis=1)
             ts.to_csv(path, index=False)
         except pd.errors.EmptyDataError:
             print(subj)

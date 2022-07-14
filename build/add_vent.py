@@ -2,8 +2,6 @@ import os
 from tqdm import tqdm
 import pandas as pd
 import util
-import multiprocessing as mp
-from functools import partial
 from sqlalchemy import create_engine
 pd.options.mode.chained_assignment = None
 
@@ -63,6 +61,7 @@ def main():
     path = "../data/output/"
     subjects = util.get_subjects(path)
     ventilation = get_vent_data()
+
     for subj in tqdm(subjects):
         add_vent(subj, ventilation)
 

@@ -4,7 +4,7 @@ import pandas as pd
 import shutil
 from tqdm import tqdm
 import random
-from split_train_and_test import move_to_partition
+from split_train_val_test import move_to_partition
 
 
 def get_subjects(path):
@@ -69,26 +69,30 @@ def create_all_stays(in_path, out_path, cohort_hadm):
     all_stays.to_csv(os.path.join(out_path, "all_stays.csv"))
 
 
-def train_test_split(out_path):
-    all_stays = pd.read_csv(os.path.join(out_path, "all_stays.csv"))
-    subjects = all_stays["subject_id"].unique()
-    random.seed(42)
+def train_test_split(subjects_root_path):
+    all_stays = pd.read_csv(os.path.join(subjects_root_path, "all_stays.csv"))
+    subjects = list(all_stays["subject_id"].unique())
+
+    random.seed(2346452394)
+    # Train Test Split
     random.shuffle(subjects)
     test_set = subjects[:int((len(subjects) + 1) * .80)]
+
     train_patients = [x for x in subjects if x not in test_set]
     test_patients = [x for x in subjects if x in test_set]
+
     assert len(set(train_patients) & set(test_patients)) == 0
 
-    move_to_partition(out_path, train_patients, "train")
-    move_to_partition(out_path, test_patients, "test")
+    move_to_partition(subjects_root_path, train_patients, "train")
+    move_to_partition(subjects_root_path, test_patients, "test")
 
 
 def main():
     in_path = "../data/output/"
     out_path = "../data/ards_icd/"
-    cohort_hadm = count_icd(in_path)
-    create_cohort_icd(in_path, out_path, cohort_hadm)
-    create_all_stays(in_path, out_path, cohort_hadm)
+    # cohort_hadm = count_icd(in_path)
+    # create_cohort_icd(in_path, out_path, cohort_hadm)
+    # create_all_stays(in_path, out_path, cohort_hadm)
     train_test_split(out_path)
 
 

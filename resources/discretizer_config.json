@@ -1,6 +1,5 @@
 {
   "id_to_channel": [
-    "albumin",
     "bicarbonate",
     "bilirubin",
     "creatinine",
@@ -8,7 +7,6 @@
     "fraction inspired oxygen",
     "glucose",
     "heart rate",
-    "height",
     "hematocrit",
     "hemoglobin",
     "lactate",
@@ -26,7 +24,6 @@
     "respiratory rate",
     "systolic blood pressure",
     "temperature",
-    "troponin-t",
     "urine output",
     "weight",
     "white blood cell count",
@@ -36,7 +33,6 @@
     "vent"
   ],
   "is_categorical_channel": {
-    "albumin":  false,
     "bicarbonate":  false,
     "bilirubin":  false,
     "creatinine":  false,
@@ -44,7 +40,6 @@
     "fraction inspired oxygen":  false,
     "glucose":  false,
     "heart rate":  false,
-    "height":  false,
     "hematocrit":  false,
     "hemoglobin":  false,
     "lactate":  false,
@@ -62,7 +57,6 @@
     "respiratory rate":  false,
     "systolic blood pressure":  false,
     "temperature":  false,
-    "troponin-t":  false,
     "urine output":  false,
     "weight":  false,
     "white blood cell count":  false,
@@ -72,7 +66,6 @@
     "vent": true
   },
   "possible_values": {
-    "albumin":  [],
     "bicarbonate": [],
     "bilirubin": [],
     "creatinine": [],
@@ -80,7 +73,6 @@
     "fraction inspired oxygen": [],
     "glucose": [],
     "heart rate": [],
-    "height": [],
     "hematocrit": [],
     "hemoglobin": [],
     "lactate": [],
@@ -98,7 +90,6 @@
     "respiratory rate": [],
     "systolic blood pressure": [],
     "temperature": [],
-    "troponin-t": [],
     "urine output": [],
     "weight": [],
     "white blood cell count": [],
@@ -108,7 +99,6 @@
     "vent": ["0.0", "1.0", "2.0"]
   },
   "normal_values": {
-    "albumin":  "",
     "bicarbonate":  "",
     "bilirubin":  "",
     "creatinine":  "",
@@ -116,7 +106,6 @@
     "fraction inspired oxygen":  "",
     "glucose":  "",
     "heart rate":  "",
-    "height":  "",
     "hematocrit":  "",
     "hemoglobin":  "",
     "lactate":  "",
@@ -134,7 +123,6 @@
     "respiratory rate":  "",
     "systolic blood pressure":  "",
     "temperature":  "",
-    "troponin-t":  "",
     "urine output":  "",
     "weight":  "",
     "white blood cell count":  "",

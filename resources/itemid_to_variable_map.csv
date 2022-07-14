@@ -37,7 +37,7 @@ Weight;Weight;;ignore;;581;Previous WeightF;;chartevents;1646896;;;;;carevue;;;
 ;;;;;5817;NBP Alarm [Low];;chartevents;1384012;;;;;carevue;;;
 ;;;;;8551;NBP Alarm [High];;chartevents;1380344;;;;;carevue;;;
 ;;Post Filter Replacement Rate;test;;228006;Post Filter Replacement Rate;ml/hr;chartevents;0;Dialysis;;;;metavision;;Numeric;
-Albumin;Albumin;;ready;;50862;ALBUMIN;g/dL;labevents;763795;CHEMISTRY;;BLOOD;7/1/1751;;;;
+Albumin;Albumin;;test;;50862;ALBUMIN;g/dL;labevents;763795;CHEMISTRY;;BLOOD;7/1/1751;;;;
 Albumin;Albumin;;test;;227456;Albumin;None;chartevents;22945;Labs;;;;metavision;;Numeric with tag;
 ;;;;;113;CVP;;chartevents;1200308;;;;;carevue;;;
 Albumin;Albumin (urine);;test;;51069;ALBUMIN, URINE;mg/dL;labevents;58832;CHEMISTRY;;URINE;1/1/1754;;;;
@@ -647,7 +647,7 @@ Lactic acid;Lactic acid;;verify;;818;Lactic Acid(0.5-2.0);;chartevents;73574;Che
 ;;;;;345;ImpSkin Character #2;;chartevents;72256;;;;;carevue;;;
 Sodium;Sodium (whole blood);Na (whole blood);verify;;50824;SODIUM, WHOLE BLOOD;;labevents;71503;BLOOD GAS;;BLOOD;2947-0;;;;
 ;;;;;8435;LLE [Color];;chartevents;71349;;;;;carevue;;;
-Height;Height;Height;ready;requires unit conversion or checking;226707;Height;Inch;chartevents;12015;General;;;;metavision;;Numeric;
+Height;Height;Height;test;requires unit conversion or checking;226707;Height;Inch;chartevents;12015;General;;;;metavision;;Numeric;
 ;;;;;8380;Corneal Reflex [Left];;chartevents;70854;;;;;carevue;;;
 ;;;;;3630;Stimulation;;chartevents;70807;;;;;carevue;;;
 ;;;;;8514;Edema [Location];;chartevents;70421;;;;;carevue;;;
@@ -702,7 +702,7 @@ Lymphocytes;Lymphocytes (atypical);;verify;;51143;ATYPICAL LYMPHOCYTES;;labevent
 ;;;;;149;Dialysis Access Type;;chartevents;58636;;;;;carevue;;;
 Mean blood pressure;Mean blood pressure (arterial);ABPm;verify;;52;Arterial BP Mean;;chartevents;2075364;;;;;carevue;;;
 Mean blood pressure;Mean blood pressure (noninvasive);NBPm;verify;;456;NBP Mean;;chartevents;1560440;;;;;carevue;;;
-Height;Height (cm);Height (cm);ready;requires unit conversion or checking;226730;Height (cm);cm;chartevents;12015;General;;;;metavision;;Numeric;
+Height;Height (cm);Height (cm);test;requires unit conversion or checking;226730;Height (cm);cm;chartevents;12015;General;;;;metavision;;Numeric;
 Lactate;Lactate;;ready;;50813;LACTATE;mmol/L;labevents;525293;BLOOD GAS;;BLOOD;32693-4;;;;
 ;;;;;51252;MICROCYTES;;labevents;58059;HEMATOLOGY;;BLOOD;741-9;;;;
 ;;;;;142;Current Goal;;chartevents;58045;;;;;carevue;;;
@@ -11220,7 +11220,7 @@ Pulse;Pulse (Popliteal);Popliteal Pulse L;ready;;223946;Popliteal Pulse L;charac
 Pulse;Pulse (PostTib);PostTib Pulses L;ready;;223947;PostTib. Pulses L;character (Doppler, weak palpable, easily palpable…);;0;Cardiovascular (Pulses);;;;metavision;;Text;
 Pulse;Pulse (Radial);Radial Pulse L;ready;;223948;Radial Pulse L;character (Doppler, weak palpable, easily palpable…);;0;Cardiovascular (Pulses);;;;metavision;;Text;
 Pulse;Pulse (Ulnar);Ulnar Pulse L;ready;;223949;Ulnar Pulse L;character (Doppler, weak palpable, easily palpable…);;0;Cardiovascular (Pulses);;;;metavision;;Text;
-Troponin-T;Troponin-T;TropT;ready;;51003;TROPONIN T;ng/mL;labevents;370876;CHEMISTRY;;BLOOD;07.01.6598;;;;
+Troponin-T;Troponin-T;TropT;test;;51003;TROPONIN T;ng/mL;labevents;370876;CHEMISTRY;;BLOOD;07.01.6598;;;;
 ;;Pericardial Drain Status;;;223952;Pericardial Drain Status;;;0;Cardiovascular;;;;metavision;;Text;
 ;;Pericardial Drain Drainage;;;223953;Pericardial Drain Drainage;;;0;Cardiovascular;;;;metavision;;Text;
 ;;Pericardial Drain Site;;;223954;Pericardial Drain Site;;;0;Cardiovascular;;;;metavision;;Text;
