@@ -8,27 +8,29 @@ import metrics
 import pickle
 import numpy as np
 import utils
+import pandas as pd
+from sklearn.utils import resample
+from tqdm import tqdm
 
-from sklearn.utils import compute_class_weight
-import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.layers import LSTM, Input, Dropout, Dense, Masking, Bidirectional
-from tensorflow.keras.regularizers import L1L2
+from tensorflow.keras.regularizers import L2
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
+from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, EarlyStopping
 from tensorflow.keras.metrics import AUC, BinaryAccuracy, Precision, Recall
+import matplotlib.pyplot as plt
 
 
-def build_model(depth, units, dropout, input_dim, kernel_reg):
+def build_model(depth, units, dropout, rec_dropout, input_dim, kernel_reg):
     model = keras.Sequential()
     model.add(Input(shape=(None, input_dim)))
     for i in range(depth - 1):
-        model.add(Bidirectional(LSTM(units=int(units/2), return_sequences=True, dropout=dropout, recurrent_dropout=dropout, kernel_regularizer=L1L2(l1=kernel_reg, l2=kernel_reg),
-                       recurrent_regularizer=L1L2(l1=0.00, l2=0.00), bias_regularizer=L1L2(l1=0.00, l2=0.00),
-                       activity_regularizer=L1L2(l1=0.0, l2=0.0))))
-    model.add(LSTM(units=units, dropout=dropout, recurrent_dropout=dropout, kernel_regularizer=L1L2(l1=kernel_reg, l2=kernel_reg),
-                   recurrent_regularizer=L1L2(l1=0.00, l2=0.00), bias_regularizer=L1L2(l1=0.00, l2=0.00),
-                   activity_regularizer=L1L2(l1=0.0, l2=0.0)))
+        model.add(Bidirectional(LSTM(units=int(units/2), return_sequences=True, dropout=dropout, recurrent_dropout=rec_dropout, kernel_regularizer=L2(kernel_reg),
+                       recurrent_regularizer=L2(0.05), bias_regularizer=L2(0.00),
+                       activity_regularizer=L2(0.0))))
+    model.add(LSTM(units=units, dropout=dropout, recurrent_dropout=rec_dropout, kernel_regularizer=L2(kernel_reg),
+                   recurrent_regularizer=L2(0.05), bias_regularizer=L2(0.00),
+                   activity_regularizer=L2(0.0)))
     model.add(Dropout(rate=dropout))
     model.add(Dense(1, activation="sigmoid"))
     return model
@@ -52,8 +54,8 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
         if balanced_sample:
             with open(data + "/train_raw_balanced.pkl", "rb") as f:
                 train_raw = pickle.load(f)
+                train_raw = (np.asarray(train_raw["data"][0]).astype('float32'), np.asarray(train_raw["data"][1]).astype('float32'))
                 input_dim = train_raw[0].shape[2]
-                train_raw = (np.asarray(train_raw[0]).astype('float32'), np.asarray(train_raw[1]).astype('float32'))
         else:
             with open(data + "/train_raw.pkl", "rb") as f:
                 train_raw = pickle.load(f)
@@ -62,7 +64,7 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
         with open(data + "/val_raw.pkl", "rb") as f:
             val_raw = pickle.load(f)
             val_raw = (np.asarray(val_raw["data"][0]).astype('float32'), np.asarray(val_raw["data"][1]).astype('float32'))
-    elif mode == "test":
+    elif mode == "test" or mode == "cv_test":
         with open(data + "/test.pkl", "rb") as f:
             test = pickle.load(f)
             input_dim = test["data"][0].shape[2]
@@ -83,7 +85,7 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
         loss = 'binary_crossentropy'
 
     # Build the model
-    model = build_model(depth, dim, dropout, input_dim, kernel_reg)
+    model = build_model(depth, dim, dropout, rec_dropout, input_dim, kernel_reg)
 
     suffix = "_bs{}{}{}_ts{}".format(batch_size,
                                      "_L1{}".format(l1) if l1 > 0 else "",
@@ -94,17 +96,18 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
                                            ".bn" if batch_norm else "",
                                            ".d{}".format(dropout) if dropout > 0 else "",
                                            ".rd{}".format(rec_dropout) if rec_dropout > 0 else "",
+                                           ".lr{}".format(lr) if lr > 0 else "",
                                            depth)
     model.final_name = prefix + say_name + suffix
     model.compile(optimizer=Adam(learning_rate=lr),
                   loss=loss,
-                  metrics=[AUC(), AUC(curve="PR"), BinaryAccuracy(), Precision(), Recall()])
+                  metrics=[AUC(), AUC(curve="PR"), BinaryAccuracy(), Precision(), Recall(), metrics.f1])
     model.summary()
 
     # Load model weights
     n_trained_chunks = 0
     if load_state != "":
-        model.load_weights(load_state)
+        model.load_weights(load_state).expect_partial()
         n_trained_chunks = int(re.match(".*epoch([0-9]+).*", load_state).group(1))
 
     if mode == 'train':
@@ -130,19 +133,36 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
                                                               val_data=val_raw,
                                                               batch_size=batch_size,
                                                               verbose=verbose)
+        early_stopping = EarlyStopping(patience=5)
 
         print("==> training")
-        model.fit(x=train_raw[0],
+        history = model.fit(x=train_raw[0],
                   y=train_raw[1],
                   validation_data=(val_raw[0], val_raw[1]),
                   # validation_split=0.2,
                   epochs=n_trained_chunks + epochs,
                   initial_epoch=n_trained_chunks,
-                  callbacks=[metrics_callback, saver, csv_logger],
+                  callbacks=[metrics_callback, saver, csv_logger, early_stopping],
                   shuffle=True,
                   verbose=verbose,
                   batch_size=batch_size,
                   class_weight=class_weight)
+        # Visualize history
+        # Plot history: Loss
+        plt.plot(history.history['val_loss'])
+        plt.plot(history.history['loss'])
+        plt.title('Validation loss history')
+        plt.ylabel('Loss value')
+        plt.xlabel('No. epoch')
+        plt.show()
+
+        # Plot history: Accuracy
+        plt.plot(history.history['val_auc_1'])
+        plt.plot(history.history['auc_1'])
+        plt.title('Validation auprc history')
+        plt.ylabel('auprc value')
+        plt.xlabel('No. epoch')
+        plt.show()
 
     if mode == 'test':
         data = np.asarray(test["data"][0]).astype('float32')
@@ -169,9 +189,28 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
         eval = model.evaluate(data, labels, batch_size=batch_size)
         print(eval)
 
+    if mode == "cv_test":
+        data = np.asarray(test["data"][0]).astype('float32')
+        labels = np.asarray(test["data"][1]).astype('float32')
+
+        # Execute Random Sampling
+        for i in tqdm(range(1000)):
+            data_sample, labels_sample = resample(data, labels, replace=True, random_state=np.random.RandomState(42+i))
+
+            eval = model.evaluate(data_sample, labels_sample, batch_size=batch_size, verbose=0)
+            if i == 0:
+                eval_df = pd.DataFrame([eval])
+                eval_df.columns = ["loss", "auroc", "auprc", "accuracy", "precision", "recall", "f1"]
+            else:
+                eval_df.loc[i] = eval
+
+        os.makedirs("./cv_test/", exist_ok=True)
+        eval_df.to_csv("./cv_test/" + model.final_name + ".csv", index=False)
+
+
 
 if __name__ == "__main__":
     path = "../data/in-hospital-mortality_v6_5/"
-    main(data=path, mode="test", dropout=0.3, depth=2, batch_size=8, dim=16, epochs=28, balanced_sample=False, balance=False, kernel_reg=0.01,
-         load_state=".\keras_states\k_lstm.n16.d0.3.dep2_bs8_ts1.0.epoch9.test0.2556713819503784.state")
-
+    main(data=path, mode="train", dropout=0.3, rec_dropout=0.3, depth=7, batch_size=128, dim=112, epochs=12,
+         balanced_sample=True, balance=False, kernel_reg=0.00, lr=0.05,
+         load_state="")
