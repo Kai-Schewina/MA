@@ -4,6 +4,7 @@ from __future__ import print_function
 import numpy as np
 from sklearn import metrics
 from tensorflow.keras.callbacks import Callback
+import keras.backend as K
 
 
 class InHospitalMortalityMetrics(Callback):
@@ -85,3 +86,14 @@ def print_metrics_binary(y_true, predictions, verbose=1):
             "auprc": auprc,
             "minpse": minpse,
             "f1": f1}
+
+
+# https://aakashgoel12.medium.com/how-to-add-user-defined-function-get-f1-score-in-keras-metrics-3013f979ce0d
+def f1(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    recall = true_positives / (possible_positives + K.epsilon())
+    f1_val = 2*(precision*recall)/(precision+recall+K.epsilon())
+    return f1_val
