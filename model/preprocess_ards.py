@@ -47,4 +47,4 @@ def main(data, full_data_path, timestep=1.0, normalizer_state="", small_part=Fal
 
 
 if __name__ == "__main__":
-    main(data="../data/ards_ihm/", full_data_path="../data/in-hospital-mortality_v6/", remove_outliers=True)
+    main(data="../data/ards_ihm_v2/", full_data_path="../data/in-hospital-mortality_v7/", remove_outliers=True)

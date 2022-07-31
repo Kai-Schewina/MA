@@ -5,23 +5,7 @@ import shutil
 from tqdm import tqdm
 import random
 from split_train_val_test import move_to_partition
-
-
-def get_subjects(path):
-    if "train" in os.listdir(path):
-        subjects_1 = os.listdir(os.path.join(path, "train"))
-        subjects_1 = [os.path.join(path, "train", x) for x in subjects_1 if ".csv" not in x]
-
-        subjects_2 = os.listdir(os.path.join(path, "test"))
-        subjects_2 = [os.path.join(path, "test", x) for x in subjects_2 if ".csv" not in x]
-
-        subjects = subjects_1 + subjects_2
-        del subjects_1
-        del subjects_2
-    else:
-        subjects = os.listdir(path)
-        subjects = [x for x in subjects if ".csv" not in x]
-    return subjects
+from util import get_subjects
 
 
 def count_icd(subj_root_path):
@@ -76,7 +60,7 @@ def train_test_split(subjects_root_path):
     random.seed(2346452394)
     # Train Test Split
     random.shuffle(subjects)
-    test_set = subjects[:int((len(subjects) + 1) * .80)]
+    test_set = subjects[:int((len(subjects) + 1) * .50)]
 
     train_patients = [x for x in subjects if x not in test_set]
     test_patients = [x for x in subjects if x in test_set]
@@ -90,9 +74,9 @@ def train_test_split(subjects_root_path):
 def main():
     in_path = "../data/output/"
     out_path = "../data/ards_icd/"
-    # cohort_hadm = count_icd(in_path)
-    # create_cohort_icd(in_path, out_path, cohort_hadm)
-    # create_all_stays(in_path, out_path, cohort_hadm)
+    cohort_hadm = count_icd(in_path)
+    create_cohort_icd(in_path, out_path, cohort_hadm)
+    create_all_stays(in_path, out_path, cohort_hadm)
     train_test_split(out_path)
 
 

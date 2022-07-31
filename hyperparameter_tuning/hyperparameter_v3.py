@@ -17,50 +17,30 @@ import keras_tuner as kt
 class MyHyperModel(kt.HyperModel):
 
     def build(self, hp):
-        def weighted_bincrossentropy(y_true, y_pred, weight_zero=0.5, weight_one=4):
-            bin_crossentropy = keras.backend.binary_crossentropy(y_true, y_pred)
-
-            weights = y_true * weight_one + (1. - y_true) * weight_zero
-            weighted_bin_crossentropy = weights * bin_crossentropy
-
-            return keras.backend.mean(weighted_bin_crossentropy)
-
         hp_depth = hp.Int("depth",  min_value=1, max_value=8, step=1)
-        hp_units = hp.Int("units", min_value=16, max_value=128, step=16)
-        hp_dropout = hp.Float("dropout", min_value=0.00, max_value=0.5, step=0.1)
+        hp_units = hp.Int("units", min_value=32, max_value=128, step=32)
+        hp_dropout = hp.Float("dropout", min_value=0.0, max_value=0.5, step=0.1)
         hp_rec_dropout = hp.Float("rec_dropout", min_value=0.0, max_value=0.5, step=0.1)
         hp_lr = hp.Choice("lr", values=[1e-2, 1e-3, 1e-4])
-        hp_reg_kernel = hp.Float("reg_kernel", min_value=0.0, max_value=0.05, step=0.01)
-        reg_kernel = L1L2(l1=hp_reg_kernel, l2=hp_reg_kernel)
 
         model = keras.Sequential()
-        model.add(Input(shape=(48, 74)))
+        model.add(Input(shape=(48, 70)))
         for i in range(hp_depth - 1):
-            model.add(Bidirectional(LSTM(units=int(hp_units/2), return_sequences=True, dropout=hp_dropout,
-                                         recurrent_dropout=0.0, kernel_regularizer=reg_kernel,
-                                         unroll=False)))
-        model.add(LSTM(units=hp_units, dropout=hp_dropout, recurrent_dropout=0.0,
-                       kernel_regularizer=reg_kernel, unroll=False))
+            model.add(Bidirectional(LSTM(units=int(hp_units/2), return_sequences=True, dropout=hp_dropout, recurrent_dropout=hp_rec_dropout)))
+        model.add(LSTM(units=hp_units, dropout=hp_dropout, recurrent_dropout=hp_rec_dropout))
         model.add(Dropout(rate=hp_dropout))
         model.add(Dense(1, activation="sigmoid"))
 
-        hp_loss = hp.Choice("loss", values=['unweighted_loss', 'weighted_loss'])
         optimizer = Adam(learning_rate=hp_lr)
-        if hp_loss == "unweighted_loss":
-            model.compile(optimizer=optimizer, loss="binary_crossentropy",
-                          metrics=[AUC(), AUC(curve="PR"), BinaryAccuracy(), Precision(), Recall()])
-        elif hp_loss == "weighted_loss":
-            model.compile(optimizer=optimizer, loss=weighted_bincrossentropy,
-                          metrics=[AUC(), AUC(curve="PR"), BinaryAccuracy(), Precision(), Recall()])
-        else:
-            raise
+        model.compile(optimizer=optimizer, loss="binary_crossentropy",
+                      metrics=[AUC(), AUC(curve="PR"), BinaryAccuracy(), Precision(), Recall()])
 
         return model
 
     def fit(self, hp, model, *args, **kwargs):
         return model.fit(
             *args,
-            batch_size=hp.Choice("batch_size", values=[8, 16, 32, 64, 128, 256]),
+            batch_size=hp.Choice("batch_size", values=[32, 64]),
             **kwargs
         )
 
@@ -71,9 +51,9 @@ tuner = kt.Hyperband(
     objective=kt.Objective("val_loss", direction="min"),
     max_epochs=100,
     hyperband_iterations=5,
-    directory="./tuning/v2")
+    directory="./tuning/v7_2")
 
-data = "../data/in-hospital-mortality_v6_5/"
+data = "../data/in-hospital-mortality_v7/"
 
 with open(data + "/train_raw_balanced.pkl", "rb") as f:
     train_raw = pickle.load(f)
@@ -82,4 +62,4 @@ with open(data + "/val_raw.pkl", "rb") as f:
     val_raw = pickle.load(f)
     val_raw = (np.asarray(val_raw["data"][0]).astype('float32'), np.asarray(val_raw["data"][1]).astype('float32'))
 
-tuner.search(x=train_raw[0], y=train_raw[1], validation_data=val_raw, verbose=1,callbacks=[stop_early])
+tuner.search(x=train_raw[0], y=train_raw[1], validation_data=val_raw, verbose=1, callbacks=[stop_early])

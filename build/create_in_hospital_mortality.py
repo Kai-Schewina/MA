@@ -80,9 +80,9 @@ def main(root_path, output_path):
 
 
 if __name__ == '__main__':
-    # ards_path = "../data/ards_icd"
-    ards_path = ""
+    ards_path = "../data/ards_icd"
+    # ards_path = ""
     if os.path.exists(ards_path):
-        main(ards_path, "../data/ards_ihm/")
+        main(ards_path, "../data/ards_ihm_v2/")
     else:
-        main("../data/output/", "../data/in-hospital-mortality_v6_5/")
+        main("../data/output/", "../data/in-hospital-mortality_v7/")

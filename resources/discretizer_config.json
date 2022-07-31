@@ -1,7 +1,6 @@
 {
   "id_to_channel": [
     "bicarbonate",
-    "bilirubin",
     "creatinine",
     "diastolic blood pressure",
     "fraction inspired oxygen",
@@ -16,7 +15,6 @@
     "partial pressure of oxygen",
     "ph",
     "platelets",
-    "positive end-expiratory pressure",
     "prothrombin time",
     "pulse",
     "red blood cell count",
@@ -27,14 +25,13 @@
     "urine output",
     "weight",
     "white blood cell count",
+    "vent",
     "Ethnicity",
     "Gender",
-    "Age",
-    "vent"
+    "Age"
   ],
   "is_categorical_channel": {
     "bicarbonate":  false,
-    "bilirubin":  false,
     "creatinine":  false,
     "diastolic blood pressure":  false,
     "fraction inspired oxygen":  false,
@@ -49,7 +46,6 @@
     "partial pressure of oxygen":  false,
     "ph":  false,
     "platelets":  false,
-    "positive end-expiratory pressure":  false,
     "prothrombin time":  false,
     "pulse":  true,
     "red blood cell count":  false,
@@ -60,14 +56,13 @@
     "urine output":  false,
     "weight":  false,
     "white blood cell count":  false,
+    "vent": true,
     "Ethnicity":  true,
     "Gender":  true,
-    "Age": false,
-    "vent": true
+    "Age": false
   },
   "possible_values": {
     "bicarbonate": [],
-    "bilirubin": [],
     "creatinine": [],
     "diastolic blood pressure": [],
     "fraction inspired oxygen": [],
@@ -82,7 +77,6 @@
     "partial pressure of oxygen": [],
     "ph": [],
     "platelets": [],
-    "positive end-expiratory pressure": [],
     "prothrombin time": [],
     "pulse": ["1.0", "2.0", "3.0", "0.0"],
     "red blood cell count": [],
@@ -93,14 +87,13 @@
     "urine output": [],
     "weight": [],
     "white blood cell count": [],
+    "vent": ["0.0", "1.0", "2.0"],
     "Ethnicity":  ["0.0", "1.0", "2.0", "3.0", "4.0"],
     "Gender":  ["0.0", "1.0", "2.0", "3.0"],
-    "Age": [],
-    "vent": ["0.0", "1.0", "2.0"]
+    "Age": []
   },
   "normal_values": {
     "bicarbonate":  "",
-    "bilirubin":  "",
     "creatinine":  "",
     "diastolic blood pressure":  "",
     "fraction inspired oxygen":  "",
@@ -115,7 +108,6 @@
     "partial pressure of oxygen":  "",
     "ph":  "",
     "platelets":  "",
-    "positive end-expiratory pressure":  "",
     "prothrombin time":  "",
     "pulse":  "",
     "red blood cell count":  "",
@@ -126,9 +118,9 @@
     "urine output":  "",
     "weight":  "",
     "white blood cell count":  "",
+    "vent": "",
     "Ethnicity":  "",
     "Gender":  "",
-    "Age": "",
-    "vent": ""
+    "Age": ""
   }
 }

@@ -65,4 +65,4 @@ def main(data, timestep=1.0, normalizer_state="", small_part=False, balanced=Fal
 
 
 if __name__ == "__main__":
-    main(data="../data/in-hospital-mortality_v6_5/", balanced=True, remove_outliers=True)
+    main(data="../data/in-hospital-mortality_v7/", balanced=False, remove_outliers=True, timestep=1.0)

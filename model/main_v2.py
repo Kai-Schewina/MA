@@ -26,10 +26,10 @@ def build_model(depth, units, dropout, rec_dropout, input_dim, kernel_reg):
     model.add(Input(shape=(None, input_dim)))
     for i in range(depth - 1):
         model.add(Bidirectional(LSTM(units=int(units/2), return_sequences=True, dropout=dropout, recurrent_dropout=rec_dropout, kernel_regularizer=L2(kernel_reg),
-                       recurrent_regularizer=L2(0.05), bias_regularizer=L2(0.00),
+                       recurrent_regularizer=L2(0.00), bias_regularizer=L2(0.00),
                        activity_regularizer=L2(0.0))))
     model.add(LSTM(units=units, dropout=dropout, recurrent_dropout=rec_dropout, kernel_regularizer=L2(kernel_reg),
-                   recurrent_regularizer=L2(0.05), bias_regularizer=L2(0.00),
+                   recurrent_regularizer=L2(0.00), bias_regularizer=L2(0.00),
                    activity_regularizer=L2(0.0)))
     model.add(Dropout(rate=dropout))
     model.add(Dense(1, activation="sigmoid"))
@@ -210,7 +210,7 @@ def main(data, output_dir='.', dim=256, depth=1, epochs=20,
 
 
 if __name__ == "__main__":
-    path = "../data/in-hospital-mortality_v6_5/"
-    main(data=path, mode="train", dropout=0.3, rec_dropout=0.3, depth=7, batch_size=128, dim=112, epochs=12,
-         balanced_sample=True, balance=False, kernel_reg=0.00, lr=0.05,
+    path = "../data/in-hospital-mortality_v7/"
+    main(data=path, mode="train", dropout=0.3, rec_dropout=0.0, depth=2, batch_size=8, dim=16, epochs=30,
+         balanced_sample=False, balance=False, kernel_reg=0.00, lr=0.001,
          load_state="")

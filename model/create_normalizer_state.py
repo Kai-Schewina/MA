@@ -55,4 +55,4 @@ def main(task="ihm", timestep=1.0, impute_strategy="previous", start_time="zero"
 
 
 if __name__ == '__main__':
-    main(data_path="../data/in-hospital-mortality_v6_5/", balanced=False, remove_outliers=True)
+    main(data_path="../data/in-hospital-mortality_v7/", balanced=True, remove_outliers=True)

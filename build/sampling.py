@@ -38,7 +38,7 @@ def undersampling(data, ards_listfile):
 
 
 if __name__ == "__main__":
-    data = "../data/in-hospital-mortality_v6_5/"
-    ards_listfile = "../data/ards_ihm/train_listfile.csv"
+    data = "../data/in-hospital-mortality_v7/"
+    ards_listfile = "../data/ards_ihm_v2/train_listfile.csv"
     new_quota = undersampling(data, ards_listfile)
     print("New balanced mortality quota: " + new_quota)

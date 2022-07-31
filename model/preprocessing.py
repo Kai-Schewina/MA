@@ -134,6 +134,7 @@ class Discretizer:
 
         data = np.zeros(shape=(N_bins, cur_len), dtype=float)
         mask = np.zeros(shape=(N_bins, N_channels), dtype=int)
+        counter = np.zeros(shape=(N_bins, cur_len), dtype=int)
         original_value = [["" for j in range(N_channels)] for i in range(N_bins)]
 
         def write(data, bin_id, channel, value, begin_pos):
@@ -154,7 +155,8 @@ class Discretizer:
                     data[bin_id, begin_pos[channel_id] + pos] = one_hot[pos]
             else:
                 try:
-                    data[bin_id, begin_pos[channel_id]] = float(value)
+                    data[bin_id, begin_pos[channel_id]] = data[bin_id, begin_pos[channel_id]] + float(value)
+                    counter[bin_id, begin_pos[channel_id]] += 1
                     # if self._remove_outliers:
                     #     if float(value) > self._normal_values[channel][2] or float(value) < self._normal_values[channel][1]:
                     #         data[bin_id, begin_pos[channel_id]] = 0.0
@@ -180,8 +182,11 @@ class Discretizer:
                 write(data, bin_id, channel, row[j], begin_pos)
                 original_value[bin_id][channel_id] = row[j]
 
-        # impute missing values
+        # Calculate Mean
+        counter[counter == 0] = 1
+        data = np.divide(data, counter)
 
+        # impute missing values
         if self._impute_strategy not in ['zero', 'normal_value', 'previous', 'next']:
             raise ValueError("impute strategy is invalid")
 
@@ -262,8 +267,8 @@ class Normalizer:
         x = np.reshape(x, (x.shape[0] * x.shape[1], x.shape[2]))
         self._count += x.shape[0]
         self._median = np.median(x, axis=0)
-        self._percentile_25 = np.percentile(x, q=20, axis=0)
-        self._percentile_75 = np.percentile(x, q=80, axis=0)
+        self._percentile_25 = np.percentile(x, q=25, axis=0)
+        self._percentile_75 = np.percentile(x, q=75, axis=0)
 
         if self._sum_x is None:
             self._sum_x = np.sum(x, axis=0)
