@@ -1,0 +1,93 @@
+{
+  "bicarbonate": {
+    "possible_values": []
+  },
+  "creatinine": {
+    "possible_values": []
+  },
+  "diastolic blood pressure": {
+    "possible_values": []
+  },
+  "fraction inspired oxygen": {
+    "possible_values": []
+  },
+  "glucose": {
+    "possible_values": []
+  },
+  "heart rate": {
+    "possible_values": []
+  },
+  "hematocrit": {
+    "possible_values": []
+  },
+  "hemoglobin": {
+    "possible_values": []
+  },
+  "lactate": {
+    "possible_values": []
+  },
+  "mean blood pressure": {
+    "possible_values": []
+  },
+  "oxygen saturation": {
+    "possible_values": []
+  },
+  "partial pressure of carbon dioxide": {
+    "possible_values": []
+  },
+  "partial pressure of oxygen": {
+    "possible_values": []
+  },
+  "ph": {
+    "possible_values": []
+  },
+  "platelets": {
+    "possible_values": []
+  },
+  "prothrombin time": {
+    "possible_values": []
+  },
+  "pulse": {
+    "possible_values": ["1.0", "2.0", "3.0", "0.0"],
+    "values": {"1.0": 1, "2.0": 2, "3.0": 3, "0.0": 0}
+  },
+  "red blood cell count": {
+    "possible_values": []
+  },
+  "red blood cell distribution width": {
+    "possible_values": []
+  },
+  "respiratory rate": {
+    "possible_values": []
+  },
+  "systolic blood pressure": {
+    "possible_values": []
+  },
+  "temperature": {
+    "possible_values": []
+  },
+  "urine output": {
+    "possible_values": []
+  },
+  "weight": {
+    "possible_values": []
+  },
+  "white blood cell count": {
+    "possible_values": []
+  },
+  "vent": {
+    "possible_values": ["0", "1", "2"],
+    "values": {"0":  0, "1": 1, "2": 2}
+  },
+  "Ethnicity": {
+    "possible_values": ["0.0", "1.0", "2.0", "3.0", "4.0"],
+    "values": {"0.0": 0, "1.0": 1, "2.0": 2, "3.0": 3, "4.0": 4}
+  },
+  "Gender": {
+    "possible_values": ["0.0", "1.0", "2.0", "3.0", "4.0"],
+    "values": {"0.0": 0, "1.0": 1, "2.0": 2, "3.0": 3, "4.0": 4}
+  },
+  "Age": {
+    "possible_values": []
+  }
+}
